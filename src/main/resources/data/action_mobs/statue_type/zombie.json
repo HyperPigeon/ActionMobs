@@ -1,0 +1,12 @@
+{
+  "creation_item": "minecraft:rotten_flesh",
+  "entity_type": "minecraft:zombie",
+  "poseable_parts": [
+      "head",
+      "body",
+      "right_arm",
+      "left_arm",
+      "right_leg",
+      "left_leg"
+  ]
+}

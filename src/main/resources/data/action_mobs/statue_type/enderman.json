@@ -1,0 +1,12 @@
+{
+  "creation_item": "minecraft:ender_pearl",
+  "entity_type": "minecraft:enderman",
+  "poseable_parts": [
+    "head",
+    "body",
+    "right_arm",
+    "left_arm",
+    "right_leg",
+    "left_leg"
+  ]
+}

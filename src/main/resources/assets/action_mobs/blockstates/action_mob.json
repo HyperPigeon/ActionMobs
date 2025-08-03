@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "action_mobs:block/action_mob"
+    }
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "id": "action_mobs",
+  "version": "${version}",
+
+  "name": "ActionMobs",
+  "description": "A mod that adds miniature games inspired mob model blocks to Minecraft.",
+  "authors": [],
+  "contact": {},
+
+  "license": "MIT",
+  "icon": "assets/action_mobs/icon.png",
+
+  "environment": "*",
+  "entrypoints": {
+    "fabric-datagen": ["net.hyper_pigeon.action_mobs.client.ActionMobsDataGenerator"],
+    "client": ["net.hyper_pigeon.action_mobs.client.ActionMobsClient"],
+    "main": ["net.hyper_pigeon.action_mobs.ActionMobs"]
+  },
+
+  "mixins": [
+    "action_mobs.mixins.json"
+  ],
+
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric": "*",
+    "minecraft": "${minecraft_version}"
+  }
+}
