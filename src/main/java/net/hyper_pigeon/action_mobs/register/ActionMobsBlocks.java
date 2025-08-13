@@ -11,10 +11,12 @@ import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.component.type.TooltipDisplayComponent;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.tooltip.TooltipType;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
@@ -23,6 +25,7 @@ import net.minecraft.sound.BlockSoundGroup;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class ActionMobsBlocks {
@@ -56,8 +59,16 @@ public class ActionMobsBlocks {
         if (shouldRegisterItem) {
             RegistryKey<Item> itemKey = keyOfItem(name);
 
-            BlockItem blockItem = new BlockItem(block, new Item.Settings().registryKey(itemKey));
-            Registry.register(Registries.ITEM, itemKey, blockItem);
+            if(block instanceof ActionMobBlock actionMobBlock) {
+                BlockItem blockItem = new BlockItem(block, new Item.Settings().registryKey(itemKey)) {
+                    @Override
+                    public void appendTooltip(ItemStack stack, Item.TooltipContext context, TooltipDisplayComponent
+                            displayComponent, Consumer<Text> textConsumer, TooltipType type) {
+                        actionMobBlock.appendTooltip(stack, context, displayComponent, textConsumer, type);
+                    }
+                };
+                Registry.register(Registries.ITEM, itemKey, blockItem);
+            }
         }
 
         return Registry.register(Registries.BLOCK, blockKey, block);

@@ -67,8 +67,8 @@ public class ActionMobRecipe extends SpecialCraftingRecipe {
                 armorStandStack.setCount(1);
             }
             else if((StatueTypeDataLoader.statueTypesByItem.containsKey(inventoryStack.getItem()))) {
-                creationItemStack = inventoryStack;
-                creationItemStack.setCount(i);
+                creationItemStack = inventoryStack.copy();
+                creationItemStack.setCount(1);
             }
         }
 

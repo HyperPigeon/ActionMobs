@@ -76,6 +76,10 @@ jar {
     }
 }
 
+loom {
+    accessWidenerPath = file("src/main/resources/action_mobs.accesswidener")
+}
+
 // configure the maven publication
 publishing {
     publications {

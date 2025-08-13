@@ -4,6 +4,7 @@ import com.mojang.logging.LogUtils;
 import net.fabricmc.api.ModInitializer;
 import net.hyper_pigeon.action_mobs.register.ActionMobsBlocks;
 import net.hyper_pigeon.action_mobs.register.ActionMobsData;
+import net.hyper_pigeon.action_mobs.register.ActionMobsNetworking;
 import net.hyper_pigeon.action_mobs.register.ActionMobsRecipes;
 import org.slf4j.Logger;
 
@@ -17,5 +18,6 @@ public class ActionMobs implements ModInitializer {
         ActionMobsBlocks.initialize();
         ActionMobsData.init();
         ActionMobsRecipes.init();
+        ActionMobsNetworking.init();
     }
 }

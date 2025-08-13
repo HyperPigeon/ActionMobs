@@ -1,0 +1,7 @@
+{
+  "creation_item": "minecraft:gunpowder",
+  "entity_type": "minecraft:creeper",
+  "poseable_parts": [
+    "head"
+  ]
+}

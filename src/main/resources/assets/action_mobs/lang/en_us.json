@@ -1,0 +1,10 @@
+{
+  "item.action_mobs.action_mob": "Action Mob",
+  "gui.action_mobs.pitch": "Pitch",
+  "gui.action_mobs.yaw": "Yaw",
+  "gui.action_mobs.roll": "Roll",
+  "gui.action_mobs.rotate_left": "Rotate display left",
+  "gui.action_mobs.rotate_right": "Rotate display right",
+  "block.action_mobs.action_mob.tooltip.0": "Shift + Right Click to edit.",
+  "block.action_mobs.action_mob.tooltip.1": "Click with an empty hand to remove items and equipment."
+}

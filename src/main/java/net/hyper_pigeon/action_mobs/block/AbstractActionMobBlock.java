@@ -1,6 +1,8 @@
 package net.hyper_pigeon.action_mobs.block;
 
 import net.hyper_pigeon.action_mobs.block.entity.ActionMobBlockEntity;
+import net.hyper_pigeon.action_mobs.statue_type.StatueType;
+import net.hyper_pigeon.action_mobs.statue_type.StatueTypeDataLoader;
 import net.minecraft.block.*;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.entity.Entity;
@@ -61,8 +63,13 @@ public abstract class AbstractActionMobBlock extends BlockWithEntity implements 
                 String[] splitType = type.split(":");
                 Identifier identifier = Identifier.of(splitType[0], splitType[1]);
                 EntityType<?> entityType = Registries.ENTITY_TYPE.get(identifier);
+
+                StatueType statueType = StatueTypeDataLoader.statueTypesByEntityType.get(entityType);
+
                 Entity entity = entityType.create(world, SpawnReason.EVENT);
                 be.setStatueEntity(entity);
+
+                be.initPartAngles(statueType.getPoseablePartNames());
             }
         }
     }
