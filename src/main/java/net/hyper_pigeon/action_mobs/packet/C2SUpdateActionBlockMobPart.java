@@ -12,7 +12,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 
 public record C2SUpdateActionBlockMobPart(BlockPos blockPos, UpdateActionBlockMobPart updateActionBlockMobPart) implements CustomPayload {
-    public static final CustomPayload.Id<C2SUpdateActionBlockMobPart> ID = new CustomPayload.Id<>(Identifier.of(ActionMobs.MOD_ID, "channel.action_mob"));
+    public static final CustomPayload.Id<C2SUpdateActionBlockMobPart> ID = new CustomPayload.Id<>(Identifier.of(ActionMobs.MOD_ID, "channel.action_mob_part"));
     public static final PacketCodec<RegistryByteBuf, C2SUpdateActionBlockMobPart> PACKET_CODEC = PacketCodec.tuple(
             BlockPos.PACKET_CODEC, C2SUpdateActionBlockMobPart::blockPos,
             UpdateActionBlockMobPart.PACKET_CODEC, C2SUpdateActionBlockMobPart::updateActionBlockMobPart,

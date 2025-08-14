@@ -4,8 +4,10 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.hyper_pigeon.action_mobs.block.entity.ActionMobBlockEntity;
 import net.hyper_pigeon.action_mobs.client.gui.widget.ActionMobRotateWidget;
 import net.hyper_pigeon.action_mobs.duck_type.ActionMobModelPartRenderHandler;
+import net.hyper_pigeon.action_mobs.packet.C2SUpdateActionBlockMobAngle;
 import net.hyper_pigeon.action_mobs.packet.C2SUpdateActionBlockMobPart;
 import net.hyper_pigeon.action_mobs.packet.UpdateActionBlockMobPart;
+import net.hyper_pigeon.action_mobs.packet.UpdateActionMobAngle;
 import net.hyper_pigeon.action_mobs.statue_type.StatueTypeDataLoader;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
@@ -21,7 +23,6 @@ import net.minecraft.client.render.entity.state.EntityRenderState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.text.Text;
-import net.minecraft.util.math.MathHelper;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
@@ -64,15 +65,15 @@ public class ActionMobEditScreen extends Screen {
 
                 partAngleButtons.put(pitchName + "_decrease", ButtonWidget.builder(Text.literal("-"), action -> {
                     this.actionMobBlockEntity.setPartPitch(partName, this.actionMobBlockEntity.getPartPitch(partName) - pitchYawRollChange);
-                    updateActionMobBlock(partName, this.actionMobBlockEntity.getPartAngle(partName));
+                    updateActionMobBlockPart(partName, this.actionMobBlockEntity.getPartAngle(partName));
                     ((TextFieldWidget) (partAngleButtons.get(pitchName))).setText(String.valueOf(this.actionMobBlockEntity.getPartPitch(partName)));
-                }).dimensions(decreaseX, y, 18, 18).build()); // 20x20 → 18x18
+                }).dimensions(decreaseX, y, 18, 18).build());
 
                 this.addDrawableChild(partAngleButtons.get(pitchName + "_decrease"));
 
                 partAngleButtons.put(pitchName + "_increase", ButtonWidget.builder(Text.literal("+"), action -> {
                     this.actionMobBlockEntity.setPartPitch(partName, this.actionMobBlockEntity.getPartPitch(partName) + pitchYawRollChange);
-                    updateActionMobBlock(partName, this.actionMobBlockEntity.getPartAngle(partName));
+                    updateActionMobBlockPart(partName, this.actionMobBlockEntity.getPartAngle(partName));
                     ((TextFieldWidget) (partAngleButtons.get(pitchName))).setText(String.valueOf(this.actionMobBlockEntity.getPartPitch(partName)));
                 }).dimensions(increaseX, y, 18, 18).build());
 
@@ -86,7 +87,7 @@ public class ActionMobEditScreen extends Screen {
 
                 partAngleButtons.put(yawName + "_decrease", ButtonWidget.builder(Text.literal("-"), action -> {
                     this.actionMobBlockEntity.setPartYaw(partName, this.actionMobBlockEntity.getPartYaw(partName) - pitchYawRollChange);
-                    updateActionMobBlock(partName, this.actionMobBlockEntity.getPartAngle(partName));
+                    updateActionMobBlockPart(partName, this.actionMobBlockEntity.getPartAngle(partName));
                     ((TextFieldWidget) (partAngleButtons.get(yawName))).setText(String.valueOf(this.actionMobBlockEntity.getPartYaw(partName)));
                 }).dimensions(decreaseX + 54, y, 18, 18).build());
 
@@ -94,7 +95,7 @@ public class ActionMobEditScreen extends Screen {
 
                 partAngleButtons.put(yawName + "_increase", ButtonWidget.builder(Text.literal("+"), action -> {
                     this.actionMobBlockEntity.setPartYaw(partName, this.actionMobBlockEntity.getPartYaw(partName) + pitchYawRollChange);
-                    updateActionMobBlock(partName, this.actionMobBlockEntity.getPartAngle(partName));
+                    updateActionMobBlockPart(partName, this.actionMobBlockEntity.getPartAngle(partName));
                     ((TextFieldWidget) (partAngleButtons.get(yawName))).setText(String.valueOf(this.actionMobBlockEntity.getPartYaw(partName)));
                 }).dimensions(increaseX + 54, y, 18, 18).build());
 
@@ -108,7 +109,7 @@ public class ActionMobEditScreen extends Screen {
 
                 partAngleButtons.put(rollName + "_decrease", ButtonWidget.builder(Text.literal("-"), action -> {
                     this.actionMobBlockEntity.setPartRoll(partName, this.actionMobBlockEntity.getPartRoll(partName) - pitchYawRollChange);
-                    updateActionMobBlock(partName, this.actionMobBlockEntity.getPartAngle(partName));
+                    updateActionMobBlockPart(partName, this.actionMobBlockEntity.getPartAngle(partName));
                     ((TextFieldWidget) (partAngleButtons.get(rollName))).setText(String.valueOf(this.actionMobBlockEntity.getPartRoll(partName)));
                 }).dimensions(decreaseX + 108, y, 18, 18).build());
 
@@ -116,7 +117,7 @@ public class ActionMobEditScreen extends Screen {
 
                 partAngleButtons.put(rollName + "_increase", ButtonWidget.builder(Text.literal("+"), action -> {
                     this.actionMobBlockEntity.setPartRoll(partName, this.actionMobBlockEntity.getPartRoll(partName) + pitchYawRollChange);
-                    updateActionMobBlock(partName, this.actionMobBlockEntity.getPartAngle(partName));
+                    updateActionMobBlockPart(partName, this.actionMobBlockEntity.getPartAngle(partName));
                     ((TextFieldWidget) (partAngleButtons.get(rollName))).setText(String.valueOf(this.actionMobBlockEntity.getPartRoll(partName)));
                 }).dimensions(increaseX + 108, y, 18, 18).build());
 
@@ -152,7 +153,49 @@ public class ActionMobEditScreen extends Screen {
 
             this.addDrawableChild(leftRotateWidget);
             this.addDrawableChild(rightRotateWidget);
+
+            TextFieldWidget pitchDisplay =  new TextFieldWidget(this.client.textRenderer, textX - 25, y, 54, 18, Text.empty());
+            pitchDisplay.setText(String.valueOf(this.actionMobBlockEntity.getPitch()));
+
+            ButtonWidget decreasePitch =  ButtonWidget.builder(Text.literal("-"), action -> {
+                this.actionMobBlockEntity.setPitch(this.actionMobBlockEntity.getPitch() - pitchYawRollChange);
+                pitchDisplay.setText(String.valueOf(this.actionMobBlockEntity.getPitch()));
+                updateActionMobBlock(this.actionMobBlockEntity.getPitch(), true);
+            }).dimensions(textX + 30, y, 18, 18).build();
+
+            ButtonWidget increasePitch =  ButtonWidget.builder(Text.literal("+"), action -> {
+                this.actionMobBlockEntity.setPitch(this.actionMobBlockEntity.getPitch() + pitchYawRollChange);
+                pitchDisplay.setText(String.valueOf(this.actionMobBlockEntity.getPitch()));
+                updateActionMobBlock(this.actionMobBlockEntity.getPitch(), true);
+            }).dimensions(textX + 50, y, 18, 18).build();
+
+
+
+            TextFieldWidget yawDisplay =  new TextFieldWidget(this.client.textRenderer, textX - 25, y + 27, 54, 18, Text.empty());
+            yawDisplay.setText(String.valueOf(this.actionMobBlockEntity.getYaw()));
+
+            ButtonWidget decreaseYaw =  ButtonWidget.builder(Text.literal("-"), action -> {
+                this.actionMobBlockEntity.setYaw(this.actionMobBlockEntity.getYaw() - pitchYawRollChange);
+                yawDisplay.setText(String.valueOf(this.actionMobBlockEntity.getYaw()));
+                updateActionMobBlock(this.actionMobBlockEntity.getYaw(), false);
+            }).dimensions(textX + 30, y + 27, 18, 18).build();
+
+            ButtonWidget increaseYaw =  ButtonWidget.builder(Text.literal("+"), action -> {
+                this.actionMobBlockEntity.setYaw(this.actionMobBlockEntity.getYaw() + pitchYawRollChange);
+                yawDisplay.setText(String.valueOf(this.actionMobBlockEntity.getYaw()));
+                updateActionMobBlock(this.actionMobBlockEntity.getYaw(), false);
+            }).dimensions(textX + 50, y + 27, 18, 18).build();
+
+            this.addDrawableChild(pitchDisplay);
+            this.addDrawableChild(decreasePitch);
+            this.addDrawableChild(increasePitch);
+
+            this.addDrawableChild(yawDisplay);
+            this.addDrawableChild(decreaseYaw);
+            this.addDrawableChild(increaseYaw);
         }
+
+
     }
 
 
@@ -175,11 +218,18 @@ public class ActionMobEditScreen extends Screen {
         return false;
     }
 
-    protected void updateActionMobBlock(String partName, Vector3f vector3f) {
+    protected void updateActionMobBlockPart(String partName, Vector3f vector3f) {
         UpdateActionBlockMobPart updateActionBlockMobPart = new UpdateActionBlockMobPart(vector3f, partName);
         C2SUpdateActionBlockMobPart c2SUpdateActionBlockMobPart = new C2SUpdateActionBlockMobPart(actionMobBlockEntity.getPos(), updateActionBlockMobPart);
         ClientPlayNetworking.send(c2SUpdateActionBlockMobPart);
     }
+
+    protected void updateActionMobBlock(float newAngle, boolean isPitch) {
+        UpdateActionMobAngle updateActionMobAngle = new UpdateActionMobAngle(newAngle, isPitch);
+        C2SUpdateActionBlockMobAngle c2SUpdateActionBlockMobAngle = new C2SUpdateActionBlockMobAngle(actionMobBlockEntity.getPos(), updateActionMobAngle);
+        ClientPlayNetworking.send(c2SUpdateActionBlockMobAngle);
+    }
+
 
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
@@ -196,6 +246,9 @@ public class ActionMobEditScreen extends Screen {
                 context.drawTextWithShadow(client.textRenderer, Text.literal(partName.toUpperCase()), 5, y + 5, 0xFFFFFFFF);
                 y += 27;
             }
+
+            context.drawTextWithShadow(client.textRenderer, Text.translatable("gui.action_mobs.pitch"), 5, y + 5, 0xFFFFFFFF);
+            context.drawTextWithShadow(client.textRenderer, Text.translatable("gui.action_mobs.yaw"), 5, y + 32, 0xFFFFFFFF);
         }
     }
 

@@ -33,6 +33,13 @@ public record ActionMobBlockEntityRenderer(BlockEntityRendererFactory.Context co
         matrices.push();
         matrices.translate(0.5D, 0D, 0.5D);
         matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(blockDirection.getPositiveHorizontalDegrees() + degreeOffset));
+
+        //rotate by yaw
+        matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(blockEntity.getYaw()));
+
+        //rotate by pitch
+        matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(blockEntity.getPitch()));
+
         Entity renderEntity = blockEntity.getStatueEntity();
         if (renderEntity != null) {
             //noinspection unchecked

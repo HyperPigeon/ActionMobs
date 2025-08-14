@@ -1,7 +1,9 @@
 package net.hyper_pigeon.action_mobs.block.entity;
 
+import com.mojang.serialization.Codec;
 import net.hyper_pigeon.action_mobs.ActionMobs;
 import net.hyper_pigeon.action_mobs.packet.UpdateActionBlockMobPart;
+import net.hyper_pigeon.action_mobs.packet.UpdateActionMobAngle;
 import net.hyper_pigeon.action_mobs.register.ActionMobsBlocks;
 import net.hyper_pigeon.action_mobs.statue_type.StatueType;
 import net.hyper_pigeon.action_mobs.statue_type.StatueTypeDataLoader;
@@ -37,6 +39,9 @@ public class ActionMobBlockEntity extends BlockEntity {
     protected NbtCompound entityData = null;
 
     protected HashMap<String, Vector3f> partAngles = new HashMap<>();
+
+    protected float pitch = 0f;
+    protected float yaw = 0f;
 
     public ActionMobBlockEntity(BlockPos pos, BlockState state) {
         super(ActionMobsBlocks.ACTION_MOB_BLOCK_ENTITY, pos, state);
@@ -135,6 +140,24 @@ public class ActionMobBlockEntity extends BlockEntity {
         markDirty();
     }
 
+    public void setPitch(float pitchValue) {
+        this.pitch = pitchValue;
+        markDirty();
+    }
+
+    public float getPitch() {
+        return this.pitch;
+    }
+
+    public void setYaw(float yawValue) {
+        this.yaw = yawValue;
+        markDirty();
+    }
+
+    public float getYaw() {
+        return this.yaw;
+    }
+
     public void markDirty() {
         super.markDirty();
         if (world != null) {
@@ -152,6 +175,9 @@ public class ActionMobBlockEntity extends BlockEntity {
             view.put("type", EntityType.CODEC, entityType);
         }
         if (statueEntity != null) {
+            view.put("pitch", Codec.FLOAT, pitch);
+            view.put("float", Codec.FLOAT, yaw);
+
             for(String partName : partAngles.keySet()) {
                 view.put(partName, Codecs.VECTOR_3F, partAngles.get(partName));
             }
@@ -175,6 +201,10 @@ public class ActionMobBlockEntity extends BlockEntity {
         super.readData(view);
         setEntityType(view.read("type", EntityType.CODEC).orElse(null));
         if (entityType != null) {
+            view.read("pitch", Codec.FLOAT).ifPresentOrElse(this::setPitch, () -> setPitch(0));
+
+            view.read("yaw", Codec.FLOAT).ifPresentOrElse(this::setYaw, () -> setYaw(0));
+
             StatueType statueType = StatueTypeDataLoader.statueTypesByEntityType.get(entityType);
             List<String> partNames = statueType.getPoseablePartNames();
             setPartAngles(partNames, view);
@@ -197,5 +227,16 @@ public class ActionMobBlockEntity extends BlockEntity {
         Vector3f vector3f = updateActionBlockMobPart.getNewAngles();
         String partName = updateActionBlockMobPart.partName();
         setPartAngle(partName, vector3f);
+    }
+
+    public void updateAngle(UpdateActionMobAngle updateActionMobAngle) {
+        boolean isPitch = updateActionMobAngle.isPitch();
+        float newAngle = updateActionMobAngle.newAngle();
+        if(isPitch) {
+            setPitch(newAngle);
+        }
+        else {
+            setYaw(newAngle);
+        }
     }
 }
