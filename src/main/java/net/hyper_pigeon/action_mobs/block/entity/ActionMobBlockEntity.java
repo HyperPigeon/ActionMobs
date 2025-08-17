@@ -2,6 +2,7 @@ package net.hyper_pigeon.action_mobs.block.entity;
 
 import com.mojang.serialization.Codec;
 import net.hyper_pigeon.action_mobs.ActionMobs;
+import net.hyper_pigeon.action_mobs.packet.UpdateActionBlockMobIsBaby;
 import net.hyper_pigeon.action_mobs.packet.UpdateActionBlockMobPart;
 import net.hyper_pigeon.action_mobs.packet.UpdateActionMobAngle;
 import net.hyper_pigeon.action_mobs.register.ActionMobsBlocks;
@@ -10,11 +11,15 @@ import net.hyper_pigeon.action_mobs.statue_type.StatueTypeDataLoader;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.NbtComponent;
 import net.minecraft.entity.*;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
+import net.minecraft.registry.Registries;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.storage.NbtReadView;
@@ -38,10 +43,14 @@ public class ActionMobBlockEntity extends BlockEntity {
     protected EntityType<?> entityType = null;
     protected NbtCompound entityData = null;
 
+    protected EntityEquipment entityEquipment = null;
+
     protected HashMap<String, Vector3f> partAngles = new HashMap<>();
 
     protected float pitch = 0f;
     protected float yaw = 0f;
+
+    protected boolean isBaby = false;
 
     public ActionMobBlockEntity(BlockPos pos, BlockState state) {
         super(ActionMobsBlocks.ACTION_MOB_BLOCK_ENTITY, pos, state);
@@ -55,6 +64,10 @@ public class ActionMobBlockEntity extends BlockEntity {
                 ReadView nbtReadView = NbtReadView.create(logging, world.getRegistryManager(), blockEntity.entityData);
                 blockEntity.statueEntity.readData(nbtReadView);
             }
+
+            if(blockEntity.entityEquipment != null) {
+                ((LivingEntity)blockEntity.statueEntity).equipment.copyFrom(blockEntity.entityEquipment);
+            }
         }
     }
 
@@ -66,6 +79,15 @@ public class ActionMobBlockEntity extends BlockEntity {
     public void setEntityData(NbtCompound entityData) {
         this.entityData = entityData;
         this.markDirty();
+    }
+
+    public void setEntityEquipment(EntityEquipment entityEquipment) {
+        this.entityEquipment = entityEquipment;
+        this.markDirty();
+    }
+
+    public EntityEquipment getEntityEquipment(){
+        return this.entityEquipment;
     }
 
     public Entity getStatueEntity() {
@@ -158,6 +180,17 @@ public class ActionMobBlockEntity extends BlockEntity {
         return this.yaw;
     }
 
+    public void setIsBaby(boolean isBaby) {
+        this.isBaby = isBaby;
+        markDirty();
+    }
+
+    public boolean isBaby(){
+        return isBaby;
+    }
+
+
+
     public void markDirty() {
         super.markDirty();
         if (world != null) {
@@ -182,16 +215,18 @@ public class ActionMobBlockEntity extends BlockEntity {
                 view.put(partName, Codecs.VECTOR_3F, partAngles.get(partName));
             }
 
+            view.put("is_baby", Codec.BOOL, isBaby);
+
             if (entityData != null && !entityData.isEmpty()) {
                 view.put("entity_data", NbtCompound.CODEC, entityData);
             } else {
                 NbtWriteView entityWriteView = NbtWriteView.create(logging);
                 statueEntity.writeData(entityWriteView);
-                if (!((LivingEntity)statueEntity).equipment.isEmpty()) {
-                    view.put("equipment", EntityEquipment.CODEC, ((LivingEntity)statueEntity).equipment);
-                }
-
                 view.put("entity_data", NbtCompound.CODEC, entityWriteView.getNbt());
+            }
+
+            if (this.entityEquipment != null && !this.entityEquipment.isEmpty()) {
+                view.put("equipment", EntityEquipment.CODEC, this.entityEquipment);
             }
         }
     }
@@ -202,15 +237,42 @@ public class ActionMobBlockEntity extends BlockEntity {
         setEntityType(view.read("type", EntityType.CODEC).orElse(null));
         if (entityType != null) {
             view.read("pitch", Codec.FLOAT).ifPresentOrElse(this::setPitch, () -> setPitch(0));
-
             view.read("yaw", Codec.FLOAT).ifPresentOrElse(this::setYaw, () -> setYaw(0));
 
             StatueType statueType = StatueTypeDataLoader.statueTypesByEntityType.get(entityType);
             List<String> partNames = statueType.getPoseablePartNames();
             setPartAngles(partNames, view);
+
             Optional<NbtCompound> entityNbtCompound = view.read("entity_data", NbtCompound.CODEC);
             entityNbtCompound.ifPresent(this::setEntityData);
+
+            Optional<EntityEquipment> entityEquipmentOptional = view.read("equipment", EntityEquipment.CODEC);
+            entityEquipmentOptional.ifPresent(this::setEntityEquipment);
+
+            view.read("is_baby", Codec.BOOL).ifPresentOrElse(this::setIsBaby, () -> setIsBaby(false));
         }
+    }
+
+    public void setCustomDataForItemStack(ItemStack itemStack){
+        NbtComponent.set(DataComponentTypes.CUSTOM_DATA, itemStack, nbtCompound -> {
+            nbtCompound.putString("entity_type", Registries.ENTITY_TYPE.getEntry(entityType).getKey().get().getValue().toString());
+            nbtCompound.putBoolean("is_baby", isBaby());
+
+            if(entityData != null) {
+                nbtCompound.put("entity_data",entityData);
+            }
+            if(entityEquipment != null) {
+                nbtCompound.put("equipment",EntityEquipment.CODEC,getEntityEquipment());
+            }
+
+            nbtCompound.putFloat("pitch", getPitch());
+            nbtCompound.putFloat("yaw", getYaw());
+
+            for(String partName : partAngles.keySet()) {
+                Vector3f vector3f = partAngles.get(partName);
+                nbtCompound.put(partName, Codecs.VECTOR_3F, vector3f);
+            }
+        });
     }
 
     @Override
@@ -238,5 +300,10 @@ public class ActionMobBlockEntity extends BlockEntity {
         else {
             setYaw(newAngle);
         }
+    }
+
+    public void updateIsBaby(UpdateActionBlockMobIsBaby updateActionBlockMobIsBaby) {
+        boolean isBaby = updateActionBlockMobIsBaby.isBaby();
+        setIsBaby(isBaby);
     }
 }

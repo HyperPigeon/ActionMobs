@@ -27,10 +27,10 @@ public record C2SUpdateActionBlockMobAngle(BlockPos blockPos, UpdateActionMobAng
     }
 
     public void receive(ServerPlayNetworking.Context context) {
-        syncPart(context.player().getWorld(), context.player().getWorld().getBlockEntity(this.blockPos()));
+        syncAngle(context.player().getWorld(), context.player().getWorld().getBlockEntity(this.blockPos()));
     }
 
-    public void syncPart (ServerWorld world, BlockEntity blockEntity) {
+    public void syncAngle (ServerWorld world, BlockEntity blockEntity) {
         if (blockEntity instanceof ActionMobBlockEntity be) {
             be.updateAngle(updateActionMobAngle());
         }

@@ -12,6 +12,7 @@ import net.minecraft.client.render.block.entity.BlockEntityRendererFactory;
 import net.minecraft.client.render.entity.EntityRenderer;
 import net.minecraft.client.render.entity.LivingEntityRenderer;
 import net.minecraft.client.render.entity.state.EntityRenderState;
+import net.minecraft.client.render.entity.state.LivingEntityRenderState;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemStack;
@@ -45,7 +46,7 @@ public record ActionMobBlockEntityRenderer(BlockEntityRendererFactory.Context co
             //noinspection unchecked
             EntityRenderer<Entity, EntityRenderState> entityRenderer = (EntityRenderer<Entity, EntityRenderState>) context.getEntityRenderDispatcher().getRenderer(renderEntity);
 //            ((ActionMobRenderHandler)((LivingEntityRenderer<?, ?, ?>)entityRenderer).getModel()).setIsActionMobRender(true);
-            EntityRenderState entityRenderState = entityRenderer.getAndUpdateRenderState(renderEntity, 0);
+            LivingEntityRenderState entityRenderState = (LivingEntityRenderState)entityRenderer.getAndUpdateRenderState(renderEntity, 0);
             Function<String, ModelPart> function = ((LivingEntityRenderer<?, ?, ?>)entityRenderer).getModel().getRootPart().createPartGetter();
             for(String partName : StatueTypeDataLoader.statueTypesByEntityType.get(renderEntity.getType()).getPoseablePartNames()) {
                 ModelPart modelPart = function.apply(partName);
@@ -54,6 +55,7 @@ public record ActionMobBlockEntityRenderer(BlockEntityRendererFactory.Context co
                 ((ActionMobModelPartRenderHandler)(Object)(modelPart)).setIsActionMobModelPart(true);
                 ((ActionMobModelPartRenderHandler)(Object)(modelPart)).setFixedAngles(vector3f);
             }
+            entityRenderState.baby = blockEntity.isBaby();
             entityRenderer.render(entityRenderState, matrices, vertexConsumers, light);
 //            ((ActionMobRenderHandler)((LivingEntityRenderer<?, ?, ?>)entityRenderer).getModel()).setIsActionMobRender(false);
         }

@@ -7,11 +7,15 @@ import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityT
 import net.hyper_pigeon.action_mobs.ActionMobs;
 import net.hyper_pigeon.action_mobs.block.ActionMobBlock;
 import net.hyper_pigeon.action_mobs.block.entity.ActionMobBlockEntity;
+import net.hyper_pigeon.action_mobs.statue_type.StatueTypeDataLoader;
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.NbtComponent;
 import net.minecraft.component.type.TooltipDisplayComponent;
+import net.minecraft.entity.EntityType;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
@@ -32,7 +36,7 @@ public class ActionMobsBlocks {
     public static final Block ACTION_MOB_BLOCK = registerBlock(
             "action_mob",
             ActionMobBlock::new,
-            AbstractBlock.Settings.create().sounds(BlockSoundGroup.STONE),
+            AbstractBlock.Settings.create().sounds(BlockSoundGroup.STONE).requiresTool().strength(1.5F, 6.0F),
             true
     );
 
@@ -45,6 +49,13 @@ public class ActionMobsBlocks {
             .icon(() -> new ItemStack(ACTION_MOB_BLOCK.asItem()))
             .displayName(Text.translatable("itemGroup.action_mobs.items"))
             .entries((context, entries) -> {
+                for(EntityType entityType : StatueTypeDataLoader.statueTypesByEntityType.keySet()) {
+                    ItemStack actionMobStack = new ItemStack(ActionMobsBlocks.ACTION_MOB_BLOCK.asItem());
+                    NbtComponent.set(DataComponentTypes.CUSTOM_DATA, actionMobStack, nbtCompound -> {
+                        nbtCompound.putString("entity_type", Registries.ENTITY_TYPE.getEntry(entityType).getKey().get().getValue().toString());
+                    });
+                    entries.add(actionMobStack);
+                }
             })
             .build());
 

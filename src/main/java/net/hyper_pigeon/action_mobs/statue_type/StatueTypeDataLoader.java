@@ -38,6 +38,7 @@ public class StatueTypeDataLoader extends JsonDataLoader<StatueType> implements 
     @Override
     protected void apply(Map<Identifier, StatueType> prepared, ResourceManager manager, Profiler profiler) {
         statueTypesByItem.clear();
+        statueTypesByEntityType.clear();
         prepared.forEach((location, element) -> {
             try {
               statueTypesByItem.put(element.getCreationItem(), element);

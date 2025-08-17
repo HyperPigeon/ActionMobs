@@ -15,8 +15,8 @@ public class ActionMobs implements ModInitializer {
 
     @Override
     public void onInitialize() {
-        ActionMobsBlocks.initialize();
         ActionMobsData.init();
+        ActionMobsBlocks.initialize();
         ActionMobsRecipes.init();
         ActionMobsNetworking.init();
     }

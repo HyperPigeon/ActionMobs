@@ -4,15 +4,13 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.hyper_pigeon.action_mobs.block.entity.ActionMobBlockEntity;
 import net.hyper_pigeon.action_mobs.client.gui.widget.ActionMobRotateWidget;
 import net.hyper_pigeon.action_mobs.duck_type.ActionMobModelPartRenderHandler;
-import net.hyper_pigeon.action_mobs.packet.C2SUpdateActionBlockMobAngle;
-import net.hyper_pigeon.action_mobs.packet.C2SUpdateActionBlockMobPart;
-import net.hyper_pigeon.action_mobs.packet.UpdateActionBlockMobPart;
-import net.hyper_pigeon.action_mobs.packet.UpdateActionMobAngle;
+import net.hyper_pigeon.action_mobs.packet.*;
 import net.hyper_pigeon.action_mobs.statue_type.StatueTypeDataLoader;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.client.gui.widget.CheckboxWidget;
 import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.model.ModelPart;
@@ -20,6 +18,7 @@ import net.minecraft.client.render.entity.EntityRenderDispatcher;
 import net.minecraft.client.render.entity.EntityRenderer;
 import net.minecraft.client.render.entity.LivingEntityRenderer;
 import net.minecraft.client.render.entity.state.EntityRenderState;
+import net.minecraft.client.render.entity.state.LivingEntityRenderState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.text.Text;
@@ -126,14 +125,28 @@ public class ActionMobEditScreen extends Screen {
                 y += 27;
 
                 this.addDrawable(partAngleButtons.get(pitchName));
+
+            }
+
+            if(StatueTypeDataLoader.statueTypesByEntityType.get(this.actionMobBlockEntity.getStatueEntity().getType()).canBeBaby()) {
+                CheckboxWidget babyCheckboxWidget = CheckboxWidget.builder(Text.translatable("gui.action_mobs.baby"),
+                                this.client.textRenderer)
+                        .checked(this.actionMobBlockEntity.isBaby())
+                        .callback(((checkbox, checked) -> {
+                            this.updateActionMobBlockIsBaby(checked);
+                        }))
+                        .pos(textX+350, 10)
+                        .build();
+
+                this.addDrawableChild(babyCheckboxWidget);
             }
 
             MinecraftClient minecraftClient = MinecraftClient.getInstance();
             int windowHeight =  minecraftClient.currentScreen.height;
             int windowWidth =  minecraftClient.currentScreen.width;
             ActionMobRotateWidget leftRotateWidget = new ActionMobRotateWidget(
-                    windowWidth - (windowWidth / 5) + 22,
-                    windowHeight - 10,
+                    textX+340,
+                    windowHeight - 15,
                     23/2,
                     13/2,
                     true,
@@ -142,8 +155,8 @@ public class ActionMobEditScreen extends Screen {
                     });
 
             ActionMobRotateWidget rightRotateWidget = new ActionMobRotateWidget(
-                    windowWidth - (windowWidth / 5) + 22 + 30 ,
-                    windowHeight - 10,
+                    textX+370 ,
+                    windowHeight - 15,
                     23/2,
                     13/2,
                     false,
@@ -204,9 +217,9 @@ public class ActionMobEditScreen extends Screen {
         this.renderInGameBackground(context);
         drawEntity(
                 context,
-                context.getScaledWindowWidth() - (context.getScaledWindowWidth() / 5),
+                416,
                 context.getScaledWindowHeight() - (context.getScaledWindowHeight() / 3),
-                context.getScaledWindowWidth() - 10,
+                447,
                 context.getScaledWindowHeight() - 10,
                 25,
                 0.25F
@@ -228,6 +241,12 @@ public class ActionMobEditScreen extends Screen {
         UpdateActionMobAngle updateActionMobAngle = new UpdateActionMobAngle(newAngle, isPitch);
         C2SUpdateActionBlockMobAngle c2SUpdateActionBlockMobAngle = new C2SUpdateActionBlockMobAngle(actionMobBlockEntity.getPos(), updateActionMobAngle);
         ClientPlayNetworking.send(c2SUpdateActionBlockMobAngle);
+    }
+
+    protected void updateActionMobBlockIsBaby(boolean isBaby) {
+        UpdateActionBlockMobIsBaby updateActionBlockMobIsBaby = new UpdateActionBlockMobIsBaby(isBaby);
+        C2SUpdateActionBlockMobIsBaby c2SUpdateActionBlockMobIsBaby = new C2SUpdateActionBlockMobIsBaby(actionMobBlockEntity.getPos(), updateActionBlockMobIsBaby);
+        ClientPlayNetworking.send(c2SUpdateActionBlockMobIsBaby);
     }
 
 
@@ -268,7 +287,7 @@ public class ActionMobEditScreen extends Screen {
         Entity entity = this.actionMobBlockEntity.getStatueEntity();
         EntityRenderDispatcher entityRenderDispatcher = MinecraftClient.getInstance().getEntityRenderDispatcher();
         EntityRenderer<Entity, EntityRenderState> entityRenderer = (EntityRenderer<Entity, EntityRenderState>) entityRenderDispatcher.getRenderer(entity);
-        EntityRenderState entityRenderState = entityRenderer.getAndUpdateRenderState(entity, 0F);
+        LivingEntityRenderState entityRenderState = (LivingEntityRenderState) entityRenderer.getAndUpdateRenderState(entity, 0F);
 
         Function<String, ModelPart> function = ((LivingEntityRenderer<?, ?, ?>)entityRenderer).getModel().getRootPart().createPartGetter();
         for(String partName : StatueTypeDataLoader.statueTypesByEntityType.get(entity.getType()).getPoseablePartNames()) {
@@ -278,6 +297,7 @@ public class ActionMobEditScreen extends Screen {
             ((ActionMobModelPartRenderHandler)(Object)(modelPart)).setIsActionMobModelPart(true);
             ((ActionMobModelPartRenderHandler)(Object)(modelPart)).setFixedAngles(vector3f);
         }
+        entityRenderState.baby = this.actionMobBlockEntity.isBaby();
         entityRenderState.hitbox = null;
         drawer.addEntity(entityRenderState, scale, translation, rotation, overrideCameraAngle, x1, y1, x2, y2);
     }

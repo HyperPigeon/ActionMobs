@@ -5,6 +5,8 @@
   "gui.action_mobs.roll": "Roll",
   "gui.action_mobs.rotate_left": "Rotate display left",
   "gui.action_mobs.rotate_right": "Rotate display right",
+  "gui.action_mobs.baby": "Baby",
   "block.action_mobs.action_mob.tooltip.0": "Shift + Right Click to edit.",
-  "block.action_mobs.action_mob.tooltip.1": "Click with an empty hand to remove items and equipment."
+  "block.action_mobs.action_mob.tooltip.1": "Click with an empty hand to remove items and equipment.",
+  "itemGroup.action_mobs.items": "Action Mobs"
 }

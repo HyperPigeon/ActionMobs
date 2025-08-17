@@ -5,10 +5,7 @@ import net.hyper_pigeon.action_mobs.statue_type.StatueType;
 import net.hyper_pigeon.action_mobs.statue_type.StatueTypeDataLoader;
 import net.minecraft.block.*;
 import net.minecraft.component.DataComponentTypes;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.SpawnReason;
+import net.minecraft.entity.*;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
@@ -18,6 +15,7 @@ import net.minecraft.state.StateManager;
 import net.minecraft.state.property.EnumProperty;
 import net.minecraft.state.property.Properties;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.dynamic.Codecs;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.shape.VoxelShape;
@@ -25,6 +23,10 @@ import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3f;
+
+import java.util.List;
+import java.util.Optional;
 
 public abstract class AbstractActionMobBlock extends BlockWithEntity implements Waterloggable {
 
@@ -55,7 +57,7 @@ public abstract class AbstractActionMobBlock extends BlockWithEntity implements 
     @Override
     public void onPlaced(World world, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack itemStack) {
         super.onPlaced(world, pos, state, placer, itemStack);
-        if (placer != null && world.getBlockEntity(pos) instanceof ActionMobBlockEntity be) {
+        if (!world.isClient() && placer != null && world.getBlockEntity(pos) instanceof ActionMobBlockEntity be) {
             var data = itemStack.get(DataComponentTypes.CUSTOM_DATA);
             if(data != null) {
                 NbtCompound value = data.copyNbt();
@@ -69,7 +71,29 @@ public abstract class AbstractActionMobBlock extends BlockWithEntity implements 
                 Entity entity = entityType.create(world, SpawnReason.EVENT);
                 be.setStatueEntity(entity);
 
-                be.initPartAngles(statueType.getPoseablePartNames());
+                boolean isBaby =  value.getBoolean("is_baby", false);
+                be.setIsBaby(isBaby);
+
+                Optional<NbtCompound> entityNbtCompound = value.get("entity_data", NbtCompound.CODEC);
+                entityNbtCompound.ifPresent(be::setEntityData);
+
+                Optional<EntityEquipment> optionalEntityEquipment =  value.get("equipment", EntityEquipment.CODEC);
+                optionalEntityEquipment.ifPresent(be::setEntityEquipment);
+
+                float pitch = value.getFloat("pitch", 0);
+                be.setPitch(pitch);
+
+                float yaw = value.getFloat("yaw", 0);
+                be.setYaw(yaw);
+
+                List<String> partNames = statueType.getPoseablePartNames();
+
+                be.initPartAngles(partNames);
+
+                for (String partName : partNames) {
+                    Optional<Vector3f> anglesOptional = value.get(partName, Codecs.VECTOR_3F);
+                    anglesOptional.ifPresent(angles -> be.setPartAngle(partName, angles));
+                }
             }
         }
     }
