@@ -1,0 +1,14 @@
+{
+  "creation_item": "minecraft:nautilus_shell",
+  "entity_type": "minecraft:drowned",
+  "poseable_parts": [
+    "head",
+    "body",
+    "right_arm",
+    "left_arm",
+    "right_leg",
+    "left_leg"
+  ],
+  "can_equip": true,
+  "can_be_baby": true
+}

@@ -1,0 +1,13 @@
+{
+  "creation_item": "minecraft:lapis_lazuli",
+  "entity_type": "minecraft:invoker",
+  "poseable_parts": [
+    "head",
+    "body",
+    "right_arm",
+    "left_arm",
+    "right_leg",
+    "left_leg"
+  ],
+  "can_equip": true
+}

@@ -1,0 +1,13 @@
+{
+  "creation_item": "minecraft:bone",
+  "entity_type": "minecraft:skeleton",
+  "poseable_parts": [
+    "head",
+    "body",
+    "right_arm",
+    "left_arm",
+    "right_leg",
+    "left_leg"
+  ],
+  "can_equip": true
+}

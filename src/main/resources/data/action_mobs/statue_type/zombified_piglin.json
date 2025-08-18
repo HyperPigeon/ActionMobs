@@ -1,0 +1,16 @@
+{
+  "creation_item": "minecraft:cooked_porkchop",
+  "entity_type": "minecraft:zombified_piglin",
+  "poseable_parts": [
+    "head",
+    "body",
+    "right_arm",
+    "left_arm",
+    "right_leg",
+    "left_leg",
+    "left_ear",
+    "right_ear"
+  ],
+  "can_equip": true,
+  "can_be_baby": true
+}

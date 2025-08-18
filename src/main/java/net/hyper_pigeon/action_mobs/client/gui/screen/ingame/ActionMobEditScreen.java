@@ -36,8 +36,8 @@ public class ActionMobEditScreen extends Screen {
     private final ActionMobBlockEntity actionMobBlockEntity;
     protected HashMap<String, ClickableWidget> partAngleButtons = new HashMap<>();
     private final float pitchYawRollChange = 15F;
-
     private float displayYaw = 0F;
+    private int pageNumber = 0;
 
     public ActionMobEditScreen(ActionMobBlockEntity blockEntity) {
         super(Text.empty());
@@ -53,20 +53,29 @@ public class ActionMobEditScreen extends Screen {
             int increaseX = (int) ((180 + 80 + 30) * 0.9);
             int y = 23;
 
-            for (String partName : actionMobBlockEntity.getPartAngles().keySet()) {
+            int guiScale = MinecraftClient.getInstance().options.getGuiScale().getValue();
+
+            String[] partNames = actionMobBlockEntity.getPartAngles().keySet().toArray(new String[0]);
+
+            int startingIndex = pageNumber * 6;
+            int endIndex = Math.min(partNames.length, startingIndex + 6);
+
+            for (int i = 0; i < partNames.length; i++) {
+                String partName = partNames[i];
+
                 String pitchName = partName + "_pitch";
                 String yawName = partName + "_yaw";
                 String rollName = partName + "_roll";
 
                 // Pitch
-                partAngleButtons.put(pitchName, new TextFieldWidget(this.client.textRenderer, textX, y, 54, 18, Text.empty()));
+                partAngleButtons.put(pitchName, new TextFieldWidget(this.client.textRenderer, textX + 45, y, 54, 18, Text.empty()));
                 ((TextFieldWidget) (partAngleButtons.get(pitchName))).setText(String.valueOf(this.actionMobBlockEntity.getPartPitch(partName)));
 
                 partAngleButtons.put(pitchName + "_decrease", ButtonWidget.builder(Text.literal("-"), action -> {
                     this.actionMobBlockEntity.setPartPitch(partName, this.actionMobBlockEntity.getPartPitch(partName) - pitchYawRollChange);
                     updateActionMobBlockPart(partName, this.actionMobBlockEntity.getPartAngle(partName));
                     ((TextFieldWidget) (partAngleButtons.get(pitchName))).setText(String.valueOf(this.actionMobBlockEntity.getPartPitch(partName)));
-                }).dimensions(decreaseX, y, 18, 18).build());
+                }).dimensions(decreaseX + 45, y, 18, 18).build());
 
                 this.addDrawableChild(partAngleButtons.get(pitchName + "_decrease"));
 
@@ -74,12 +83,12 @@ public class ActionMobEditScreen extends Screen {
                     this.actionMobBlockEntity.setPartPitch(partName, this.actionMobBlockEntity.getPartPitch(partName) + pitchYawRollChange);
                     updateActionMobBlockPart(partName, this.actionMobBlockEntity.getPartAngle(partName));
                     ((TextFieldWidget) (partAngleButtons.get(pitchName))).setText(String.valueOf(this.actionMobBlockEntity.getPartPitch(partName)));
-                }).dimensions(increaseX, y, 18, 18).build());
+                }).dimensions(increaseX + 45, y, 18, 18).build());
 
                 this.addDrawableChild(partAngleButtons.get(pitchName + "_increase"));
 
                 // Yaw
-                partAngleButtons.put(yawName, new TextFieldWidget(this.client.textRenderer, textX + 54, y, 54, 18, Text.empty()));
+                partAngleButtons.put(yawName, new TextFieldWidget(this.client.textRenderer, textX + 54 + 45, y, 54, 18, Text.empty()));
                 ((TextFieldWidget) (partAngleButtons.get(yawName))).setText(String.valueOf(this.actionMobBlockEntity.getPartYaw(partName)));
 
                 this.addDrawable(partAngleButtons.get(yawName));
@@ -88,7 +97,7 @@ public class ActionMobEditScreen extends Screen {
                     this.actionMobBlockEntity.setPartYaw(partName, this.actionMobBlockEntity.getPartYaw(partName) - pitchYawRollChange);
                     updateActionMobBlockPart(partName, this.actionMobBlockEntity.getPartAngle(partName));
                     ((TextFieldWidget) (partAngleButtons.get(yawName))).setText(String.valueOf(this.actionMobBlockEntity.getPartYaw(partName)));
-                }).dimensions(decreaseX + 54, y, 18, 18).build());
+                }).dimensions(decreaseX + 54 + 45, y, 18, 18).build());
 
                 this.addDrawableChild(partAngleButtons.get(yawName + "_decrease"));
 
@@ -96,12 +105,12 @@ public class ActionMobEditScreen extends Screen {
                     this.actionMobBlockEntity.setPartYaw(partName, this.actionMobBlockEntity.getPartYaw(partName) + pitchYawRollChange);
                     updateActionMobBlockPart(partName, this.actionMobBlockEntity.getPartAngle(partName));
                     ((TextFieldWidget) (partAngleButtons.get(yawName))).setText(String.valueOf(this.actionMobBlockEntity.getPartYaw(partName)));
-                }).dimensions(increaseX + 54, y, 18, 18).build());
+                }).dimensions(increaseX + 54 + 45, y, 18, 18).build());
 
                 this.addDrawableChild(partAngleButtons.get(yawName + "_increase"));
 
                 // Roll
-                partAngleButtons.put(rollName, new TextFieldWidget(this.client.textRenderer, textX + 108, y, 54, 18, Text.empty()));
+                partAngleButtons.put(rollName, new TextFieldWidget(this.client.textRenderer, textX + 108 + 45, y, 54, 18, Text.empty()));
                 ((TextFieldWidget) (partAngleButtons.get(rollName))).setText(String.valueOf(this.actionMobBlockEntity.getPartRoll(partName)));
 
                 this.addDrawable(partAngleButtons.get(rollName));
@@ -110,7 +119,7 @@ public class ActionMobEditScreen extends Screen {
                     this.actionMobBlockEntity.setPartRoll(partName, this.actionMobBlockEntity.getPartRoll(partName) - pitchYawRollChange);
                     updateActionMobBlockPart(partName, this.actionMobBlockEntity.getPartAngle(partName));
                     ((TextFieldWidget) (partAngleButtons.get(rollName))).setText(String.valueOf(this.actionMobBlockEntity.getPartRoll(partName)));
-                }).dimensions(decreaseX + 108, y, 18, 18).build());
+                }).dimensions(decreaseX + 108 + 45, y, 18, 18).build());
 
                 this.addDrawableChild(partAngleButtons.get(rollName + "_decrease"));
 
@@ -118,7 +127,7 @@ public class ActionMobEditScreen extends Screen {
                     this.actionMobBlockEntity.setPartRoll(partName, this.actionMobBlockEntity.getPartRoll(partName) + pitchYawRollChange);
                     updateActionMobBlockPart(partName, this.actionMobBlockEntity.getPartAngle(partName));
                     ((TextFieldWidget) (partAngleButtons.get(rollName))).setText(String.valueOf(this.actionMobBlockEntity.getPartRoll(partName)));
-                }).dimensions(increaseX + 108, y, 18, 18).build());
+                }).dimensions(increaseX + 108 + 45, y, 18, 18).build());
 
                 this.addDrawableChild(partAngleButtons.get(rollName + "_increase"));
 
@@ -135,7 +144,7 @@ public class ActionMobEditScreen extends Screen {
                         .callback(((checkbox, checked) -> {
                             this.updateActionMobBlockIsBaby(checked);
                         }))
-                        .pos(textX+350, 10)
+                        .pos(textX+350+45, 10)
                         .build();
 
                 this.addDrawableChild(babyCheckboxWidget);
@@ -143,7 +152,6 @@ public class ActionMobEditScreen extends Screen {
 
             MinecraftClient minecraftClient = MinecraftClient.getInstance();
             int windowHeight =  minecraftClient.currentScreen.height;
-            int windowWidth =  minecraftClient.currentScreen.width;
             ActionMobRotateWidget leftRotateWidget = new ActionMobRotateWidget(
                     textX+340,
                     windowHeight - 15,
@@ -257,12 +265,13 @@ public class ActionMobEditScreen extends Screen {
         if (this.client != null) {
             super.render(context, mouseX, mouseY, delta);
 
-            context.drawTextWithShadow(client.textRenderer, Text.translatable("gui.action_mobs.pitch"), textX, 9, 0xFFFFFFFF);
-            context.drawTextWithShadow(client.textRenderer, Text.translatable("gui.action_mobs.yaw"), textX + 54, 9, 0xFFFFFFFF);
-            context.drawTextWithShadow(client.textRenderer, Text.translatable("gui.action_mobs.roll"), textX + 108, 9, 0xFFFFFFFF);
+            context.drawTextWithShadow(client.textRenderer, Text.translatable("gui.action_mobs.pitch"), textX + 45, 9, 0xFFFFFFFF);
+            context.drawTextWithShadow(client.textRenderer, Text.translatable("gui.action_mobs.yaw"), textX + 54 + 45, 9, 0xFFFFFFFF);
+            context.drawTextWithShadow(client.textRenderer, Text.translatable("gui.action_mobs.roll"), textX + 108 + 45, 9, 0xFFFFFFFF);
 
             for (String partName : actionMobBlockEntity.getPartAngles().keySet()) {
-                context.drawTextWithShadow(client.textRenderer, Text.literal(partName.toUpperCase()), 5, y + 5, 0xFFFFFFFF);
+                String splitPartName = partName.replace("_", " ");
+                context.drawTextWithShadow(client.textRenderer, Text.literal(splitPartName.substring(0,1).toUpperCase() + splitPartName.substring(1)), 5, y + 5, 0xFFFFFFFF);
                 y += 27;
             }
 

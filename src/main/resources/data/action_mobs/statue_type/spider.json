@@ -1,0 +1,16 @@
+{
+  "creation_item": "minecraft:spider_eye",
+  "entity_type": "minecraft:spider",
+  "poseable_parts": [
+    "head",
+    "right_hind_leg",
+    "left_hind_leg",
+    "right_middle_hind_leg",
+    "left_middle_hind_leg",
+    "right_middle_front_leg",
+    "left_middle_front_leg",
+    "right_front_leg",
+    "left_front_leg"
+  ],
+  "can_equip": true
+}

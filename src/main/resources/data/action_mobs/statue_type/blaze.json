@@ -1,0 +1,7 @@
+{
+  "creation_item": "minecraft:blaze_rod",
+  "entity_type": "minecraft:blaze",
+  "poseable_parts": [
+    "head"
+  ]
+}

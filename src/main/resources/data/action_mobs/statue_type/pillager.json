@@ -1,0 +1,13 @@
+{
+  "creation_item": "minecraft:crossbow",
+  "entity_type": "minecraft:pillager",
+  "poseable_parts": [
+    "head",
+    "body",
+    "right_arm",
+    "left_arm",
+    "right_leg",
+    "left_leg"
+  ],
+  "can_equip": true
+}
