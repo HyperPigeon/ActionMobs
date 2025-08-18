@@ -1,0 +1,14 @@
+{
+  "creation_item": "minecraft:amethyst_shard",
+  "entity_type": "minecraft:allay",
+  "poseable_parts": [
+    "head",
+    "body",
+    "right_arm",
+    "left_arm",
+    "right_leg",
+    "left_leg",
+    "right_wing",
+    "left_wing"
+  ]
+}

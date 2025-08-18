@@ -1,0 +1,13 @@
+{
+  "creation_item": "minecraft:lead",
+  "entity_type": "minecraft:wandering_trader",
+  "poseable_parts": [
+    "head",
+    "hat",
+    "hat_rim",
+    "arms",
+    "right_leg",
+    "left_leg"
+  ],
+  "can_be_baby": true
+}

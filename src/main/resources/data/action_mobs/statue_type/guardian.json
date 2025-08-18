@@ -1,0 +1,11 @@
+{
+  "creation_item": "minecraft:prismarine_shard",
+  "entity_type": "minecraft:guardian",
+  "poseable_parts": [
+    "head",
+    "eye",
+    "tail0",
+    "tail1",
+    "tail2"
+  ]
+}

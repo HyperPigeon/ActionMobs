@@ -1,0 +1,17 @@
+{
+  "creation_item": "minecraft:bone_block",
+  "entity_type": "minecraft:wolf",
+  "poseable_parts": [
+    "head",
+    "real_head",
+    "body",
+    "upper_body",
+    "right_hind_leg",
+    "left_hind_leg",
+    "right_front_leg",
+    "left_front_leg",
+    "tail",
+    "real_tail"
+  ],
+  "can_be_baby": true
+}

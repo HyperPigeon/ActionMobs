@@ -1,0 +1,16 @@
+{
+  "creation_item": "minecraft:sweet_berries",
+  "entity_type": "minecraft:fox",
+  "poseable_parts": [
+    "head",
+    "body",
+    "tail",
+    "right_hind_leg",
+    "left_hind_leg",
+    "right_front_leg",
+    "left_front_leg",
+    "right_ear",
+    "left_ear"
+  ],
+  "can_be_baby": true
+}

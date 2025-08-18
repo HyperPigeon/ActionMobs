@@ -1,0 +1,14 @@
+{
+  "creation_item": "minecraft:saddle",
+  "entity_type": "minecraft:horse",
+  "poseable_parts": [
+    "head_parts",
+    "body",
+    "right_hind_leg",
+    "left_hind_leg",
+    "right_front_leg",
+    "left_front_leg",
+    "tail"
+  ],
+  "can_be_baby": true
+}

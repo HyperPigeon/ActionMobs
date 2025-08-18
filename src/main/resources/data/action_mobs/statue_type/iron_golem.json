@@ -1,6 +1,6 @@
 {
-  "creation_item": "minecraft:lapis_lazuli",
-  "entity_type": "minecraft:invoker",
+  "creation_item": "minecraft:iron_ingot",
+  "entity_type": "minecraft:iron_golem",
   "poseable_parts": [
     "head",
     "body",
@@ -9,5 +9,5 @@
     "right_leg",
     "left_leg"
   ],
-  "can_equip": true
+  "can_be_baby": true
 }

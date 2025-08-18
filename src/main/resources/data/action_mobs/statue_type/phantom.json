@@ -1,0 +1,14 @@
+{
+  "creation_item": "minecraft:phantom_membrane",
+  "entity_type": "minecraft:phantom",
+  "poseable_parts": [
+    "head",
+    "body",
+    "tail_base",
+    "tail_tip",
+    "left_wing_base",
+    "left_wing_tip",
+    "right_wing_base",
+    "right_wing_tip"
+  ]
+}

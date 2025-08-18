@@ -1,0 +1,15 @@
+{
+  "creation_item": "minecraft:cooked_beef",
+  "entity_type": "minecraft:ravager",
+  "poseable_parts": [
+    "head",
+    "jaw",
+    "neck",
+    "body",
+    "right_hind_leg",
+    "left_hind_leg",
+    "right_front_leg",
+    "left_front_leg"
+  ],
+  "can_be_baby": true
+}

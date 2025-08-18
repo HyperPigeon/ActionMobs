@@ -1,0 +1,13 @@
+{
+  "creation_item": "minecraft:totem_of_undying",
+  "entity_type": "minecraft:evoker",
+  "poseable_parts": [
+    "head",
+    "body",
+    "right_arm",
+    "left_arm",
+    "right_leg",
+    "left_leg"
+  ],
+  "can_equip": true
+}

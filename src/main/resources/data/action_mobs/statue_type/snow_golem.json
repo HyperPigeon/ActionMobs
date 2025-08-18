@@ -1,0 +1,11 @@
+{
+  "creation_item": "minecraft:carved_pumpkin",
+  "entity_type": "minecraft:snow_golem",
+  "poseable_parts": [
+    "head",
+    "left_arm",
+    "right_arm",
+    "upper_body"
+  ],
+  "can_be_baby": true
+}

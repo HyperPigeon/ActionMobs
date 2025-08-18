@@ -1,0 +1,13 @@
+{
+  "creation_item": "minecraft:sculk",
+  "entity_type": "minecraft:warden",
+  "poseable_parts": [
+    "head",
+    "body",
+    "right_arm",
+    "left_arm",
+    "right_leg",
+    "left_leg",
+    "bone"
+  ]
+}

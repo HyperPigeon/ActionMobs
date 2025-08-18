@@ -1,0 +1,15 @@
+{
+  "creation_item": "minecraft:gold_ingot",
+  "entity_type": "minecraft:piglin_brute",
+  "poseable_parts": [
+    "head",
+    "body",
+    "right_arm",
+    "left_arm",
+    "right_leg",
+    "left_leg",
+    "left_ear",
+    "right_ear"
+  ],
+  "can_equip": true
+}

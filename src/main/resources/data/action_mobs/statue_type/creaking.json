@@ -1,0 +1,12 @@
+{
+  "creation_item": "minecraft:resin_clump",
+  "entity_type": "minecraft:creaking",
+  "poseable_parts": [
+    "head",
+    "body",
+    "right_arm",
+    "left_arm",
+    "right_leg",
+    "left_leg"
+  ]
+}

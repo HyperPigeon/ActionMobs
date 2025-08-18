@@ -1,0 +1,14 @@
+{
+  "creation_item": "minecraft:iron_sword",
+  "entity_type": "minecraft:vex",
+  "poseable_parts": [
+    "head",
+    "body",
+    "right_arm",
+    "left_arm",
+    "right_leg",
+    "left_leg",
+    "right_wing",
+    "left_wing"
+  ]
+}

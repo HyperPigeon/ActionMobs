@@ -1,0 +1,13 @@
+{
+  "creation_item": "minecraft:potion",
+  "entity_type": "minecraft:witch",
+  "poseable_parts": [
+    "head",
+    "hat",
+    "hat_rim",
+    "arms",
+    "right_leg",
+    "left_leg"
+  ],
+  "can_be_baby": true
+}

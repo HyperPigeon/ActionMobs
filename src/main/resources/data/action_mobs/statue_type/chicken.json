@@ -1,0 +1,12 @@
+{
+  "creation_item": "minecraft:raw_chicken",
+  "entity_type": "minecraft:chicken",
+  "poseable_parts": [
+    "head",
+    "right_leg",
+    "left_leg",
+    "right_wing",
+    "left_wing"
+  ],
+  "can_be_baby": true
+}

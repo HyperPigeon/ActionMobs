@@ -1,0 +1,16 @@
+{
+  "creation_item": "minecraft:white_harness",
+  "entity_type": "minecraft:happy_ghast",
+  "poseable_parts": [
+    "body",
+    "tentacle0",
+    "tentacle1",
+    "tentacle2",
+    "tentacle3",
+    "tentacle4",
+    "tentacle5",
+    "tentacle6",
+    "tentacle7",
+    "tentacle8"
+  ]
+}

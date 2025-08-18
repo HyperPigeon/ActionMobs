@@ -1,0 +1,14 @@
+{
+  "creation_item": "minecraft:grey_dye",
+  "entity_type": "minecraft:donkey",
+  "poseable_parts": [
+    "head_parts",
+    "body",
+    "right_hind_leg",
+    "left_hind_leg",
+    "right_front_leg",
+    "left_front_leg",
+    "tail"
+  ],
+  "can_be_baby": true
+}

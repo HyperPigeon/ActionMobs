@@ -1,0 +1,15 @@
+{
+  "creation_item": "minecraft:leather",
+  "entity_type": "minecraft:hoglin",
+  "poseable_parts": [
+    "head",
+    "body",
+    "right_hind_leg",
+    "left_hind_leg",
+    "right_front_leg",
+    "left_front_leg",
+    "right_ear",
+    "left_ear"
+  ],
+  "can_be_baby": true
+}

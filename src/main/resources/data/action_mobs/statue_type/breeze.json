@@ -1,0 +1,13 @@
+{
+  "creation_item": "minecraft:breeze_rod",
+  "entity_type": "minecraft:breeze",
+  "poseable_parts": [
+    "head",
+    "eyes",
+    "windBody",
+    "windTop",
+    "windMid",
+    "windBottom",
+    "rods"
+  ]
+}
