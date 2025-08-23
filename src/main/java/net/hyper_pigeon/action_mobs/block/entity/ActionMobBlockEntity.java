@@ -65,7 +65,7 @@ public class ActionMobBlockEntity extends BlockEntity {
                 blockEntity.statueEntity.readData(nbtReadView);
             }
 
-            if(blockEntity.entityEquipment != null) {
+            if(blockEntity.entityEquipment != null && !world.isClient) {
                 ((LivingEntity)blockEntity.statueEntity).equipment.copyFrom(blockEntity.entityEquipment);
             }
         }

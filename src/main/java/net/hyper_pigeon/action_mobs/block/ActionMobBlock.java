@@ -1,8 +1,15 @@
 package net.hyper_pigeon.action_mobs.block;
 
 import com.mojang.serialization.MapCodec;
+import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.hyper_pigeon.action_mobs.ActionMobs;
 import net.hyper_pigeon.action_mobs.block.entity.ActionMobBlockEntity;
 import net.hyper_pigeon.action_mobs.client.gui.screen.ingame.ActionMobEditScreen;
+import net.hyper_pigeon.action_mobs.mixin.EntityEquipmentMixin;
+import net.hyper_pigeon.action_mobs.mixin.LivingEntityMixin;
+import net.hyper_pigeon.action_mobs.packet.S2CUpdateActionMobEquipment;
+import net.hyper_pigeon.action_mobs.packet.UpdateActionMobEquipment;
 import net.hyper_pigeon.action_mobs.register.ActionMobsBlocks;
 import net.hyper_pigeon.action_mobs.statue_type.StatueTypeDataLoader;
 import net.minecraft.block.BlockState;
@@ -27,7 +34,9 @@ import net.minecraft.item.tooltip.TooltipType;
 import net.minecraft.loot.context.LootContextParameters;
 import net.minecraft.loot.context.LootWorldContext;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.network.packet.s2c.play.EntityEquipmentUpdateS2CPacket;
 import net.minecraft.registry.Registries;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.storage.NbtWriteView;
 import net.minecraft.text.Text;
@@ -47,6 +56,7 @@ import org.joml.Vector3f;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 public class ActionMobBlock extends AbstractActionMobBlock{
@@ -88,44 +98,21 @@ public class ActionMobBlock extends AbstractActionMobBlock{
         }
     }
 
+
     protected ActionResult onUseWithItemClient(ItemStack stack, BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
         if (!player.getGameMode().equals(GameMode.ADVENTURE)
                 && world.getBlockEntity(pos) instanceof ActionMobBlockEntity be
                 && be.getStatueEntity() != null) {
-            LivingEntity statueEntity = (LivingEntity) be.getStatueEntity();
             if(player.isSneaking()) {
-                MinecraftClient.getInstance().setScreen(new ActionMobEditScreen(be));
+                ActionMobs.proxy.openActionMobEditScreen(be);
                 return ActionResult.CONSUME;
             }
-            else if(!stack.isEmpty() && StatueTypeDataLoader.statueTypesByEntityType.get(statueEntity.getType()).canEquip()) {
-                EquipmentSlot equipmentSlot = statueEntity.getPreferredEquipmentSlot(stack);
-                if(statueEntity.canEquip(stack,equipmentSlot) && statueEntity.getEquippedStack(equipmentSlot).isEmpty()) {
-                    ItemStack splitStack = stack.split(1);
-                    statueEntity.equipStack(equipmentSlot, splitStack);
-//                    player.setStackInHand(hand, ItemStack.EMPTY);
-                    be.setEntityEquipment(statueEntity.equipment);
-                    return ActionResult.CONSUME;
-                }
-            }
-            else {
-                EnumMap<EquipmentSlot, ItemStack> map = statueEntity.equipment.map;
-                for(EquipmentSlot equipmentSlot : map.keySet()) {
-                    if(!map.get(equipmentSlot).isEmpty()) {
-                        ItemStack itemStack = statueEntity.getEquippedStack(equipmentSlot);
-                        statueEntity.equipStack(equipmentSlot, ItemStack.EMPTY);
-                        player.setStackInHand(hand, itemStack);
-                        be.setEntityEquipment(statueEntity.equipment);
-                        return ActionResult.CONSUME;
-                    }
-                }
-            }
-
         }
         return ActionResult.FAIL;
     }
 
     protected ActionResult onUseWithItemServer(ItemStack stack, BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
-        if (!player.getGameMode().equals(GameMode.ADVENTURE)
+        if (!Objects.equals(player.getGameMode(), GameMode.ADVENTURE)
                 && world.getBlockEntity(pos) instanceof ActionMobBlockEntity be
                 && be.getStatueEntity() != null) {
             LivingEntity statueEntity = (LivingEntity) be.getStatueEntity();
@@ -135,12 +122,16 @@ public class ActionMobBlock extends AbstractActionMobBlock{
                     if(statueEntity.canEquip(stack,equipmentSlot) && statueEntity.getEquippedStack(equipmentSlot).isEmpty()) {
                         ItemStack splitStack = stack.split(1);
                         statueEntity.equipStack(equipmentSlot, splitStack);
-//                    player.setStackInHand(hand, ItemStack.EMPTY);
+                        player.setStackInHand(hand, ItemStack.EMPTY);
                         be.setEntityEquipment(statueEntity.equipment);
+                        UpdateActionMobEquipment updateActionMobEquipment = new UpdateActionMobEquipment(equipmentSlot, splitStack);
+                        for (ServerPlayerEntity serverPlayer : PlayerLookup.world((ServerWorld) world)) {
+                            ServerPlayNetworking.send(serverPlayer, new S2CUpdateActionMobEquipment(pos, updateActionMobEquipment));
+                        }
                         return ActionResult.CONSUME;
                     }
                 }
-                else {
+                else if(stack.isEmpty()) {
                     EnumMap<EquipmentSlot, ItemStack> map = statueEntity.equipment.map;
                     for(EquipmentSlot equipmentSlot : map.keySet()) {
                         if(!map.get(equipmentSlot).isEmpty()) {
@@ -148,6 +139,10 @@ public class ActionMobBlock extends AbstractActionMobBlock{
                             statueEntity.equipStack(equipmentSlot, ItemStack.EMPTY);
                             player.setStackInHand(hand, itemStack);
                             be.setEntityEquipment(statueEntity.equipment);
+                            UpdateActionMobEquipment updateActionMobEquipment = new UpdateActionMobEquipment(equipmentSlot, new ItemStack(Items.AIR));
+                            for (ServerPlayerEntity serverPlayer : PlayerLookup.world((ServerWorld) world)) {
+                                ServerPlayNetworking.send(serverPlayer, new S2CUpdateActionMobEquipment(pos, updateActionMobEquipment));
+                            }
                             return ActionResult.CONSUME;
                         }
                     }

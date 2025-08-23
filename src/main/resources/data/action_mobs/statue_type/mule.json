@@ -1,5 +1,5 @@
 {
-  "creation_item": "minecraft:grey_dye",
+  "creation_item": "minecraft:gray_dye",
   "entity_type": "minecraft:donkey",
   "poseable_parts": [
     "head_parts",

@@ -1,5 +1,5 @@
 {
-  "creation_item": "minecraft:raw_chicken",
+  "creation_item": "minecraft:chicken",
   "entity_type": "minecraft:chicken",
   "poseable_parts": [
     "head",
