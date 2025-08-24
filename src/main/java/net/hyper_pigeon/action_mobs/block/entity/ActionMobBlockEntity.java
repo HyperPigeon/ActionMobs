@@ -209,7 +209,7 @@ public class ActionMobBlockEntity extends BlockEntity {
         }
         if (statueEntity != null) {
             view.put("pitch", Codec.FLOAT, pitch);
-            view.put("float", Codec.FLOAT, yaw);
+            view.put("yaw", Codec.FLOAT, yaw);
 
             for(String partName : partAngles.keySet()) {
                 view.put(partName, Codecs.VECTOR_3F, partAngles.get(partName));
