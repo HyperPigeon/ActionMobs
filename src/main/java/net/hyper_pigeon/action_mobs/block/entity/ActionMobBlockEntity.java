@@ -47,6 +47,9 @@ public class ActionMobBlockEntity extends BlockEntity {
 
     protected HashMap<String, Vector3f> partAngles = new HashMap<>();
 
+
+    protected HashMap<String, Boolean> edited = new HashMap<>();
+
     protected float pitch = 0f;
     protected float yaw = 0f;
 
@@ -108,6 +111,9 @@ public class ActionMobBlockEntity extends BlockEntity {
         for (String partName : partNames) {
             Optional<Vector3f> anglesOptional = readView.read(partName, Codecs.VECTOR_3F);
             anglesOptional.ifPresent(angles -> partAngles.put(partName, angles));
+
+            Optional<Boolean> isEditedOptional = readView.read(partName+"_edited", Codec.BOOL);
+            isEditedOptional.ifPresent(isEdited -> edited.put(partName, isEdited));
         }
         markDirty();
     }
@@ -116,6 +122,7 @@ public class ActionMobBlockEntity extends BlockEntity {
         for(String partName : partNames) {
             Vector3f zeroVector = new Vector3f(0,0,0);
             this.partAngles.put(partName, zeroVector);
+            this.edited.put(partName, false);
         }
         markDirty();
     }
@@ -128,6 +135,20 @@ public class ActionMobBlockEntity extends BlockEntity {
         this.partAngles.put(partName, vector3f);
         markDirty();
     }
+
+    public void setPartEdited(String partName, boolean edited) {
+        this.edited.put(partName,edited);
+        markDirty();
+    }
+
+    public boolean isPartEdited(String partName){
+        return this.edited.get(partName);
+    }
+
+    public HashMap<String, Boolean> getEdited() {
+        return edited;
+    }
+
 
     public float getPartPitch(String partName) {
         return this.partAngles.get(partName).x();
@@ -213,6 +234,7 @@ public class ActionMobBlockEntity extends BlockEntity {
 
             for(String partName : partAngles.keySet()) {
                 view.put(partName, Codecs.VECTOR_3F, partAngles.get(partName));
+                view.put(partName+"_edited", Codec.BOOL, edited.get(partName));
             }
 
             view.put("is_baby", Codec.BOOL, isBaby);
@@ -269,8 +291,10 @@ public class ActionMobBlockEntity extends BlockEntity {
             nbtCompound.putFloat("yaw", getYaw());
 
             for(String partName : partAngles.keySet()) {
-                Vector3f vector3f = partAngles.get(partName);
+                Vector3f vector3f = this.partAngles.get(partName);
+                boolean edited = this.edited.get(partName);
                 nbtCompound.put(partName, Codecs.VECTOR_3F, vector3f);
+                nbtCompound.put(partName+"_edited", Codec.BOOL, edited);
             }
         });
     }
@@ -289,6 +313,7 @@ public class ActionMobBlockEntity extends BlockEntity {
         Vector3f vector3f = updateActionBlockMobPart.getNewAngles();
         String partName = updateActionBlockMobPart.partName();
         setPartAngle(partName, vector3f);
+        setPartEdited(partName, true);
     }
 
     public void updateAngle(UpdateActionMobAngle updateActionMobAngle) {

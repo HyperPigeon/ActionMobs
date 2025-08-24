@@ -93,6 +93,7 @@ public abstract class AbstractActionMobBlock extends BlockWithEntity implements 
                 for (String partName : partNames) {
                     Optional<Vector3f> anglesOptional = value.get(partName, Codecs.VECTOR_3F);
                     anglesOptional.ifPresent(angles -> be.setPartAngle(partName, angles));
+                    anglesOptional.ifPresent(angles -> be.setPartEdited(partName, true));
                 }
             }
         }

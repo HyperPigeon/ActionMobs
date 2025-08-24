@@ -132,9 +132,8 @@ public class ActionMobBlock extends AbstractActionMobBlock{
                     }
                 }
                 else if(stack.isEmpty()) {
-                    EnumMap<EquipmentSlot, ItemStack> map = statueEntity.equipment.map;
-                    for(EquipmentSlot equipmentSlot : map.keySet()) {
-                        if(!map.get(equipmentSlot).isEmpty()) {
+                    for(EquipmentSlot equipmentSlot :EquipmentSlot.values()) {
+                        if(!statueEntity.getEquippedStack(equipmentSlot).isEmpty()) {
                             ItemStack itemStack = statueEntity.getEquippedStack(equipmentSlot);
                             statueEntity.equipStack(equipmentSlot, ItemStack.EMPTY);
                             player.setStackInHand(hand, itemStack);
