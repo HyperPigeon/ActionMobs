@@ -71,6 +71,9 @@ public abstract class AbstractActionMobBlock extends BlockWithEntity implements 
                 Entity entity = entityType.create(world, SpawnReason.EVENT);
                 be.setStatueEntity(entity);
 
+                boolean canBeBaby = value.getBoolean("can_be_baby", false);
+                be.setCanBeBaby(canBeBaby);
+
                 boolean isBaby =  value.getBoolean("is_baby", false);
                 be.setIsBaby(isBaby);
 
@@ -95,6 +98,8 @@ public abstract class AbstractActionMobBlock extends BlockWithEntity implements 
                     anglesOptional.ifPresent(angles -> be.setPartAngle(partName, angles));
                     anglesOptional.ifPresent(angles -> be.setPartEdited(partName, true));
                 }
+
+
             }
         }
     }

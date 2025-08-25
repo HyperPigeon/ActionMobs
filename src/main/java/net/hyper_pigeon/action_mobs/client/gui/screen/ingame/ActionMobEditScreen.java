@@ -150,9 +150,9 @@ public class ActionMobEditScreen extends Screen {
 
             }
 
-            StatueType statueType = StatueTypeDataLoader.statueTypesByEntityType.get(this.actionMobBlockEntity.getStatueEntity().getType());
 
-            if(statueType != null && statueType.canBeBaby()) {
+
+            if(this.actionMobBlockEntity.canBeBaby()) {
                 CheckboxWidget babyCheckboxWidget = CheckboxWidget.builder(Text.translatable("gui.action_mobs.baby"),
                                 this.client.textRenderer)
                         .checked(this.actionMobBlockEntity.isBaby())

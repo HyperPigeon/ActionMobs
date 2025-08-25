@@ -54,6 +54,7 @@ public class ActionMobBlockEntity extends BlockEntity {
     protected float yaw = 0f;
 
     protected boolean isBaby = false;
+    private boolean canBeBaby = false;
 
     public ActionMobBlockEntity(BlockPos pos, BlockState state) {
         super(ActionMobsBlocks.ACTION_MOB_BLOCK_ENTITY, pos, state);
@@ -210,7 +211,14 @@ public class ActionMobBlockEntity extends BlockEntity {
         return isBaby;
     }
 
+    public boolean canBeBaby() {
+        return canBeBaby;
+    }
 
+    public void setCanBeBaby(boolean canBeBaby) {
+        this.canBeBaby = canBeBaby;
+        markDirty();
+    }
 
     public void markDirty() {
         super.markDirty();
@@ -237,6 +245,7 @@ public class ActionMobBlockEntity extends BlockEntity {
                 view.put(partName+"_edited", Codec.BOOL, edited.get(partName));
             }
 
+            view.put("can_be_baby", Codec.BOOL, canBeBaby());
             view.put("is_baby", Codec.BOOL, isBaby);
 
             if (entityData != null && !entityData.isEmpty()) {
@@ -274,13 +283,16 @@ public class ActionMobBlockEntity extends BlockEntity {
             Optional<EntityEquipment> entityEquipmentOptional = view.read("equipment", EntityEquipment.CODEC);
             entityEquipmentOptional.ifPresent(this::setEntityEquipment);
 
+            view.read("can_be_baby", Codec.BOOL).ifPresentOrElse(this::setCanBeBaby, () -> setCanBeBaby(false));
             view.read("is_baby", Codec.BOOL).ifPresentOrElse(this::setIsBaby, () -> setIsBaby(false));
+
         }
     }
 
     public void setCustomDataForItemStack(ItemStack itemStack){
         NbtComponent.set(DataComponentTypes.CUSTOM_DATA, itemStack, nbtCompound -> {
             nbtCompound.putString("entity_type", Registries.ENTITY_TYPE.getEntry(entityType).getKey().get().getValue().toString());
+            nbtCompound.putBoolean("can_be_baby", canBeBaby());
             nbtCompound.putBoolean("is_baby", isBaby());
 
             if(entityData != null) {
