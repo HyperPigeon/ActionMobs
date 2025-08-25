@@ -262,8 +262,11 @@ public class ActionMobBlockEntity extends BlockEntity {
             view.read("yaw", Codec.FLOAT).ifPresentOrElse(this::setYaw, () -> setYaw(0));
 
             StatueType statueType = StatueTypeDataLoader.statueTypesByEntityType.get(entityType);
-            List<String> partNames = statueType.getPoseablePartNames();
-            setPartAngles(partNames, view);
+            if(statueType != null) {
+                List<String> partNames = statueType.getPoseablePartNames();
+                setPartAngles(partNames, view);
+            }
+
 
             Optional<NbtCompound> entityNbtCompound = view.read("entity_data", NbtCompound.CODEC);
             entityNbtCompound.ifPresent(this::setEntityData);
