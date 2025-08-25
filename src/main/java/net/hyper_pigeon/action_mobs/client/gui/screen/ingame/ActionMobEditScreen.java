@@ -312,7 +312,7 @@ public class ActionMobEditScreen extends Screen {
         LivingEntityRenderState entityRenderState = (LivingEntityRenderState) entityRenderer.getAndUpdateRenderState(entity, 0F);
 
         Function<String, ModelPart> function = ((LivingEntityRenderer<?, ?, ?>)entityRenderer).getModel().getRootPart().createPartGetter();
-        for(String partName : StatueTypeDataLoader.statueTypesByEntityType.get(entity.getType()).getPoseablePartNames()) {
+        for(String partName : actionMobBlockEntity.getPartAngles().keySet()) {
             ModelPart modelPart = function.apply(partName);
             Vector3f vector3f = this.actionMobBlockEntity.getPartAngle(partName);
             vector3f = convertToRadiansVector(vector3f);
