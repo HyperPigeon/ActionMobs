@@ -150,8 +150,6 @@ public class ActionMobEditScreen extends Screen {
 
             }
 
-
-
             if(this.actionMobBlockEntity.canBeBaby()) {
                 CheckboxWidget babyCheckboxWidget = CheckboxWidget.builder(Text.translatable("gui.action_mobs.baby"),
                                 this.client.textRenderer)
