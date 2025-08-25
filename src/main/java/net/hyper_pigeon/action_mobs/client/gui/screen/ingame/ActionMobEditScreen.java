@@ -5,6 +5,7 @@ import net.hyper_pigeon.action_mobs.block.entity.ActionMobBlockEntity;
 import net.hyper_pigeon.action_mobs.client.gui.widget.ActionMobRotateWidget;
 import net.hyper_pigeon.action_mobs.duck_type.ActionMobModelPartRenderHandler;
 import net.hyper_pigeon.action_mobs.packet.*;
+import net.hyper_pigeon.action_mobs.statue_type.StatueType;
 import net.hyper_pigeon.action_mobs.statue_type.StatueTypeDataLoader;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
@@ -149,7 +150,9 @@ public class ActionMobEditScreen extends Screen {
 
             }
 
-            if(StatueTypeDataLoader.statueTypesByEntityType.get(this.actionMobBlockEntity.getStatueEntity().getType()).canBeBaby()) {
+            StatueType statueType = StatueTypeDataLoader.statueTypesByEntityType.get(this.actionMobBlockEntity.getStatueEntity().getType());
+
+            if(statueType != null && statueType.canBeBaby()) {
                 CheckboxWidget babyCheckboxWidget = CheckboxWidget.builder(Text.translatable("gui.action_mobs.baby"),
                                 this.client.textRenderer)
                         .checked(this.actionMobBlockEntity.isBaby())
