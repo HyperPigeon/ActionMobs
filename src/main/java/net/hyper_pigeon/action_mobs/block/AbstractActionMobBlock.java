@@ -71,7 +71,7 @@ public abstract class AbstractActionMobBlock extends BlockWithEntity implements 
                 Entity entity = entityType.create(world, SpawnReason.EVENT);
                 be.setStatueEntity(entity);
 
-                boolean canBeBaby = value.getBoolean("can_be_baby", false);
+                boolean canBeBaby = statueType.canBeBaby();
                 be.setCanBeBaby(canBeBaby);
 
                 boolean isBaby =  value.getBoolean("is_baby", false);
