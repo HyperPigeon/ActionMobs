@@ -6,6 +6,7 @@ import net.hyper_pigeon.action_mobs.block.entity.ActionMobBlockEntity;
 import net.hyper_pigeon.action_mobs.duck_type.ActionMobModelPartRenderHandler;
 import net.hyper_pigeon.action_mobs.packet.C2SUpdateActionBlockMobPart;
 import net.hyper_pigeon.action_mobs.packet.UpdateActionBlockMobPart;
+import net.hyper_pigeon.action_mobs.statue_type.StatueType;
 import net.hyper_pigeon.action_mobs.statue_type.StatueTypeDataLoader;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.render.VertexConsumerProvider;
@@ -53,29 +54,33 @@ public record ActionMobBlockEntityRenderer(BlockEntityRendererFactory.Context co
             EntityModel<LivingEntityRenderState> model = (EntityModel<LivingEntityRenderState>) ((LivingEntityRenderer<?, ?, ?>)entityRenderer).getModel();
             Function<String, ModelPart> function = ((LivingEntityRenderer<?, ?, ?>)entityRenderer).getModel().getRootPart().createPartGetter();
 
-            List<String> poseablePartNames = StatueTypeDataLoader.statueTypesByEntityType.get(renderEntity.getType()).getPoseablePartNames();
+            StatueType statueType = StatueTypeDataLoader.statueTypesByEntityType.get(renderEntity.getType());
+            if(statueType != null) {
+                List<String> poseablePartNames = statueType.getPoseablePartNames();
 
-            if(blockEntity.getEdited().containsValue(false)) {
-                model.setAngles(entityRenderState);
+                if(blockEntity.getEdited().containsValue(false)) {
+                    model.setAngles(entityRenderState);
+                }
+
+
+                for(String partName : poseablePartNames) {
+                    ModelPart modelPart = function.apply(partName);
+                    if(blockEntity.isPartEdited(partName)) {
+                        Vector3f vector3f = blockEntity.getPartAngle(partName);
+                        vector3f = convertToRadiansVector(vector3f);
+                        ((ActionMobModelPartRenderHandler)(Object)(modelPart)).setFixedAngles(vector3f);
+                    }
+                    else {
+                        Vector3f vanillaPose = new Vector3f(modelPart.pitch, modelPart.yaw, modelPart.roll);
+                        ((ActionMobModelPartRenderHandler)(Object)(modelPart)).setFixedAngles(vanillaPose);
+                        blockEntity.setPartEdited(partName, true);
+                        updateActionMobBlockPart(blockEntity, partName, convertToRoundedAnglesVector(vanillaPose));
+                    }
+                    ((ActionMobModelPartRenderHandler)(Object)(modelPart)).setIsActionMobModelPart(true);
+                }
+                entityRenderState.baby = blockEntity.isBaby();
             }
 
-
-            for(String partName : poseablePartNames) {
-                ModelPart modelPart = function.apply(partName);
-                if(blockEntity.isPartEdited(partName)) {
-                    Vector3f vector3f = blockEntity.getPartAngle(partName);
-                    vector3f = convertToRadiansVector(vector3f);
-                    ((ActionMobModelPartRenderHandler)(Object)(modelPart)).setFixedAngles(vector3f);
-                }
-                else {
-                    Vector3f vanillaPose = new Vector3f(modelPart.pitch, modelPart.yaw, modelPart.roll);
-                    ((ActionMobModelPartRenderHandler)(Object)(modelPart)).setFixedAngles(vanillaPose);
-                    blockEntity.setPartEdited(partName, true);
-                    updateActionMobBlockPart(blockEntity, partName, convertToRoundedAnglesVector(vanillaPose));
-                }
-                ((ActionMobModelPartRenderHandler)(Object)(modelPart)).setIsActionMobModelPart(true);
-            }
-            entityRenderState.baby = blockEntity.isBaby();
             entityRenderer.render(entityRenderState, matrices, vertexConsumers, light);
 
 //            ((ActionMobRenderHandler)((LivingEntityRenderer<?, ?, ?>)entityRenderer).getModel()).setIsActionMobRender(false);
