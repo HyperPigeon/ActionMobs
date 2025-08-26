@@ -314,10 +314,12 @@ public class ActionMobEditScreen extends Screen {
         Function<String, ModelPart> function = ((LivingEntityRenderer<?, ?, ?>)entityRenderer).getModel().getRootPart().createPartGetter();
         for(String partName : actionMobBlockEntity.getPartAngles().keySet()) {
             ModelPart modelPart = function.apply(partName);
-            Vector3f vector3f = this.actionMobBlockEntity.getPartAngle(partName);
-            vector3f = convertToRadiansVector(vector3f);
-            ((ActionMobModelPartRenderHandler)(Object)(modelPart)).setIsActionMobModelPart(true);
-            ((ActionMobModelPartRenderHandler)(Object)(modelPart)).setFixedAngles(vector3f);
+            if(modelPart != null) {
+                Vector3f vector3f = this.actionMobBlockEntity.getPartAngle(partName);
+                vector3f = convertToRadiansVector(vector3f);
+                ((ActionMobModelPartRenderHandler)(Object)(modelPart)).setIsActionMobModelPart(true);
+                ((ActionMobModelPartRenderHandler)(Object)(modelPart)).setFixedAngles(vector3f);
+            }
         }
         entityRenderState.baby = this.actionMobBlockEntity.isBaby();
         entityRenderState.hitbox = null;
