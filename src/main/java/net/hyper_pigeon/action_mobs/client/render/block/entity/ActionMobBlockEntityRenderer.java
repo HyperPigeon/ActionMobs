@@ -25,6 +25,7 @@ import net.minecraft.util.math.Vec3d;
 import org.joml.Vector3f;
 
 import java.util.List;
+import java.util.Set;
 import java.util.function.Function;
 
 public record ActionMobBlockEntityRenderer(BlockEntityRendererFactory.Context context) implements BlockEntityRenderer<ActionMobBlockEntity> {
@@ -54,32 +55,28 @@ public record ActionMobBlockEntityRenderer(BlockEntityRendererFactory.Context co
             EntityModel<LivingEntityRenderState> model = (EntityModel<LivingEntityRenderState>) ((LivingEntityRenderer<?, ?, ?>)entityRenderer).getModel();
             Function<String, ModelPart> function = ((LivingEntityRenderer<?, ?, ?>)entityRenderer).getModel().getRootPart().createPartGetter();
 
-            StatueType statueType = StatueTypeDataLoader.statueTypesByEntityType.get(renderEntity.getType());
-            if(statueType != null) {
-                List<String> poseablePartNames = statueType.getPoseablePartNames();
+            Set<String> poseablePartNames = blockEntity.getPartAngles().keySet();
 
-                if(blockEntity.getEdited().containsValue(false)) {
-                    model.setAngles(entityRenderState);
-                }
-
-
-                for(String partName : poseablePartNames) {
-                    ModelPart modelPart = function.apply(partName);
-                    if(blockEntity.isPartEdited(partName)) {
-                        Vector3f vector3f = blockEntity.getPartAngle(partName);
-                        vector3f = convertToRadiansVector(vector3f);
-                        ((ActionMobModelPartRenderHandler)(Object)(modelPart)).setFixedAngles(vector3f);
-                    }
-                    else {
-                        Vector3f vanillaPose = new Vector3f(modelPart.pitch, modelPart.yaw, modelPart.roll);
-                        ((ActionMobModelPartRenderHandler)(Object)(modelPart)).setFixedAngles(vanillaPose);
-                        blockEntity.setPartEdited(partName, true);
-                        updateActionMobBlockPart(blockEntity, partName, convertToRoundedAnglesVector(vanillaPose));
-                    }
-                    ((ActionMobModelPartRenderHandler)(Object)(modelPart)).setIsActionMobModelPart(true);
-                }
-                entityRenderState.baby = blockEntity.isBaby();
+            if(blockEntity.getEdited().containsValue(false)) {
+                model.setAngles(entityRenderState);
             }
+
+            for(String partName : poseablePartNames) {
+                ModelPart modelPart = function.apply(partName);
+                if(blockEntity.isPartEdited(partName)) {
+                    Vector3f vector3f = blockEntity.getPartAngle(partName);
+                    vector3f = convertToRadiansVector(vector3f);
+                    ((ActionMobModelPartRenderHandler)(Object)(modelPart)).setFixedAngles(vector3f);
+                }
+                else {
+                    Vector3f vanillaPose = new Vector3f(modelPart.pitch, modelPart.yaw, modelPart.roll);
+                    ((ActionMobModelPartRenderHandler)(Object)(modelPart)).setFixedAngles(vanillaPose);
+                    blockEntity.setPartEdited(partName, true);
+                    updateActionMobBlockPart(blockEntity, partName, convertToRoundedAnglesVector(vanillaPose));
+                }
+                ((ActionMobModelPartRenderHandler)(Object)(modelPart)).setIsActionMobModelPart(true);
+            }
+            entityRenderState.baby = blockEntity.isBaby();
 
             entityRenderer.render(entityRenderState, matrices, vertexConsumers, light);
 
