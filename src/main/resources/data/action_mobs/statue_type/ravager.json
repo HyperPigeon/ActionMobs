@@ -3,7 +3,7 @@
   "entity_type": "minecraft:ravager",
   "poseable_parts": [
     "head",
-    "jaw",
+    "mouth",
     "neck",
     "body",
     "right_hind_leg",
