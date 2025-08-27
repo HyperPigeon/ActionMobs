@@ -4,6 +4,7 @@
   "package": "net.hyper_pigeon.action_mobs.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
+    "LivingEntityMixin"
   ],
   "client": [
     "ModelPartMixin"

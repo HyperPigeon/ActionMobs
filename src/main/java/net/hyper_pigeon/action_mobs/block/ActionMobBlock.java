@@ -123,7 +123,7 @@ public class ActionMobBlock extends AbstractActionMobBlock{
                         ItemStack splitStack = stack.split(1);
                         statueEntity.equipStack(equipmentSlot, splitStack);
                         player.setStackInHand(hand, ItemStack.EMPTY);
-                        be.setEntityEquipment(statueEntity.equipment);
+                        be.setEntityEquipment(((LivingEntityMixin)statueEntity).getEquipment());
                         UpdateActionMobEquipment updateActionMobEquipment = new UpdateActionMobEquipment(equipmentSlot, splitStack);
                         for (ServerPlayerEntity serverPlayer : PlayerLookup.world((ServerWorld) world)) {
                             ServerPlayNetworking.send(serverPlayer, new S2CUpdateActionMobEquipment(pos, updateActionMobEquipment));
@@ -137,7 +137,7 @@ public class ActionMobBlock extends AbstractActionMobBlock{
                             ItemStack itemStack = statueEntity.getEquippedStack(equipmentSlot);
                             statueEntity.equipStack(equipmentSlot, ItemStack.EMPTY);
                             player.setStackInHand(hand, itemStack);
-                            be.setEntityEquipment(statueEntity.equipment);
+                            be.setEntityEquipment(((LivingEntityMixin)statueEntity).getEquipment());
                             UpdateActionMobEquipment updateActionMobEquipment = new UpdateActionMobEquipment(equipmentSlot, new ItemStack(Items.AIR));
                             for (ServerPlayerEntity serverPlayer : PlayerLookup.world((ServerWorld) world)) {
                                 ServerPlayNetworking.send(serverPlayer, new S2CUpdateActionMobEquipment(pos, updateActionMobEquipment));

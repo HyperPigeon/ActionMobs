@@ -166,7 +166,7 @@ public class ActionMobEditScreen extends Screen {
             MinecraftClient minecraftClient = MinecraftClient.getInstance();
             int windowHeight =  minecraftClient.currentScreen.height;
             ActionMobRotateWidget leftRotateWidget = new ActionMobRotateWidget(
-                    textX+340,
+                    textX+360,
                     windowHeight - 15,
                     23/2,
                     13/2,
@@ -176,7 +176,7 @@ public class ActionMobEditScreen extends Screen {
                     });
 
             ActionMobRotateWidget rightRotateWidget = new ActionMobRotateWidget(
-                    textX+370 ,
+                    textX+390 ,
                     windowHeight - 15,
                     23/2,
                     13/2,
@@ -238,9 +238,9 @@ public class ActionMobEditScreen extends Screen {
         this.renderInGameBackground(context);
         drawEntity(
                 context,
-                416,
-                context.getScaledWindowHeight() - (context.getScaledWindowHeight() / 3),
-                447,
+                406,
+                (int) (context.getScaledWindowHeight() - (context.getScaledWindowHeight() / 2.5F)),
+                497,
                 context.getScaledWindowHeight() - 10,
                 25,
                 0.25F

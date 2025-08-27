@@ -2,6 +2,7 @@ package net.hyper_pigeon.action_mobs.block.entity;
 
 import com.mojang.serialization.Codec;
 import net.hyper_pigeon.action_mobs.ActionMobs;
+import net.hyper_pigeon.action_mobs.mixin.LivingEntityMixin;
 import net.hyper_pigeon.action_mobs.packet.UpdateActionBlockMobIsBaby;
 import net.hyper_pigeon.action_mobs.packet.UpdateActionBlockMobPart;
 import net.hyper_pigeon.action_mobs.packet.UpdateActionMobAngle;
@@ -70,7 +71,7 @@ public class ActionMobBlockEntity extends BlockEntity {
             }
 
             if(blockEntity.entityEquipment != null && !world.isClient) {
-                ((LivingEntity)blockEntity.statueEntity).equipment.copyFrom(blockEntity.entityEquipment);
+                ((LivingEntityMixin)blockEntity.statueEntity).getEquipment().copyFrom(blockEntity.entityEquipment);
             }
         }
     }
@@ -314,8 +315,7 @@ public class ActionMobBlockEntity extends BlockEntity {
         });
     }
 
-    @Override
-    public Packet<ClientPlayPacketListener> toUpdatePacket() {
+    public BlockEntityUpdateS2CPacket toUpdatePacket() {
         return BlockEntityUpdateS2CPacket.create(this);
     }
 
