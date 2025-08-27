@@ -116,7 +116,7 @@ public class ActionMobBlock extends AbstractActionMobBlock{
                 && world.getBlockEntity(pos) instanceof ActionMobBlockEntity be
                 && be.getStatueEntity() != null) {
             LivingEntity statueEntity = (LivingEntity) be.getStatueEntity();
-            if(!player.isSneaking()) {
+            if(!player.isSneaking() && hand.equals(Hand.MAIN_HAND)) {
                 if(!stack.isEmpty() && StatueTypeDataLoader.statueTypesByEntityType.get(statueEntity.getType()).canEquip()) {
                     EquipmentSlot equipmentSlot = statueEntity.getPreferredEquipmentSlot(stack);
                     if(statueEntity.canEquip(stack,equipmentSlot) && statueEntity.getEquippedStack(equipmentSlot).isEmpty()) {
@@ -142,7 +142,7 @@ public class ActionMobBlock extends AbstractActionMobBlock{
                             for (ServerPlayerEntity serverPlayer : PlayerLookup.world((ServerWorld) world)) {
                                 ServerPlayNetworking.send(serverPlayer, new S2CUpdateActionMobEquipment(pos, updateActionMobEquipment));
                             }
-                            return ActionResult.CONSUME;
+                            return ActionResult.SUCCESS_SERVER;
                         }
                     }
                 }

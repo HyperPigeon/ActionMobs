@@ -7,18 +7,17 @@ import net.hyper_pigeon.action_mobs.packet.UpdateActionBlockMobIsBaby;
 import net.hyper_pigeon.action_mobs.packet.UpdateActionBlockMobPart;
 import net.hyper_pigeon.action_mobs.packet.UpdateActionMobAngle;
 import net.hyper_pigeon.action_mobs.register.ActionMobsBlocks;
-import net.hyper_pigeon.action_mobs.statue_type.StatueType;
-import net.hyper_pigeon.action_mobs.statue_type.StatueTypeDataLoader;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.NbtComponent;
-import net.minecraft.entity.*;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityEquipment;
+import net.minecraft.entity.EntityType;
+import net.minecraft.entity.SpawnReason;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.network.listener.ClientPlayPacketListener;
-import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.RegistryWrapper;
@@ -33,6 +32,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.joml.Vector3f;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
@@ -241,10 +241,15 @@ public class ActionMobBlockEntity extends BlockEntity {
             view.put("pitch", Codec.FLOAT, pitch);
             view.put("yaw", Codec.FLOAT, yaw);
 
+
+            String partNames = String.join(",", partAngles.keySet());
+            view.putString("part_names", partNames);
+
             for(String partName : partAngles.keySet()) {
                 view.put(partName, Codecs.VECTOR_3F, partAngles.get(partName));
                 view.put(partName+"_edited", Codec.BOOL, edited.get(partName));
             }
+
 
             view.put("can_be_baby", Codec.BOOL, canBeBaby());
             view.put("is_baby", Codec.BOOL, isBaby);
@@ -271,11 +276,11 @@ public class ActionMobBlockEntity extends BlockEntity {
             view.read("pitch", Codec.FLOAT).ifPresentOrElse(this::setPitch, () -> setPitch(0));
             view.read("yaw", Codec.FLOAT).ifPresentOrElse(this::setYaw, () -> setYaw(0));
 
-            StatueType statueType = StatueTypeDataLoader.statueTypesByEntityType.get(entityType);
-            if(statueType != null) {
-                List<String> partNames = statueType.getPoseablePartNames();
-                setPartAngles(partNames, view);
-            }
+            Optional<String> partNamesOptional = view.read("part_names", Codec.STRING);
+            partNamesOptional.ifPresent((partNames) -> {
+                String[] partNamesArray = partNames.split(",");
+                setPartAngles(Arrays.stream(partNamesArray).toList(), view);
+            });
 
 
             Optional<NbtCompound> entityNbtCompound = view.read("entity_data", NbtCompound.CODEC);
