@@ -10,4 +10,7 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 public interface LivingEntityMixin {
     @Accessor("equipment")
     EntityEquipment getEquipment();
+
+    @Accessor("equipment")
+    void setEquipment(EntityEquipment entityEquipment);
 }

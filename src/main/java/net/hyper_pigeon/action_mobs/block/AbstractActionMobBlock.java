@@ -1,6 +1,10 @@
 package net.hyper_pigeon.action_mobs.block;
 
+import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.hyper_pigeon.action_mobs.block.entity.ActionMobBlockEntity;
+import net.hyper_pigeon.action_mobs.packet.S2CUpdateActionMobEquipment;
+import net.hyper_pigeon.action_mobs.packet.UpdateActionMobEquipment;
 import net.hyper_pigeon.action_mobs.statue_type.StatueType;
 import net.hyper_pigeon.action_mobs.statue_type.StatueTypeDataLoader;
 import net.minecraft.block.*;
@@ -11,6 +15,8 @@ import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.registry.Registries;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.EnumProperty;
 import net.minecraft.state.property.Properties;
@@ -81,7 +87,17 @@ public abstract class AbstractActionMobBlock extends BlockWithEntity implements 
                 entityNbtCompound.ifPresent(be::setEntityData);
 
                 Optional<EntityEquipment> optionalEntityEquipment =  value.get("equipment", EntityEquipment.CODEC);
-                optionalEntityEquipment.ifPresent(be::setEntityEquipment);
+                optionalEntityEquipment.ifPresent(entityEquipment -> {
+                    be.setEntityEquipment(entityEquipment);
+                    for(EquipmentSlot equipmentSlot : EquipmentSlot.values()) {
+                        ItemStack equipmentStack =  entityEquipment.get(equipmentSlot);
+                        ((LivingEntity)entity).equipStack(equipmentSlot, equipmentStack);
+                        UpdateActionMobEquipment updateActionMobEquipment = new UpdateActionMobEquipment(equipmentSlot, equipmentStack);
+                        for (ServerPlayerEntity serverPlayer : PlayerLookup.world((ServerWorld) world)) {
+                            ServerPlayNetworking.send(serverPlayer, new S2CUpdateActionMobEquipment(pos, updateActionMobEquipment));
+                        }
+                    }
+                });
 
                 float pitch = value.getFloat("pitch", 0);
                 be.setPitch(pitch);

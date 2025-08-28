@@ -120,9 +120,9 @@ public class ActionMobBlock extends AbstractActionMobBlock{
                 if(!stack.isEmpty() && StatueTypeDataLoader.statueTypesByEntityType.get(statueEntity.getType()).canEquip()) {
                     EquipmentSlot equipmentSlot = statueEntity.getPreferredEquipmentSlot(stack);
                     if(statueEntity.canEquip(stack,equipmentSlot) && statueEntity.getEquippedStack(equipmentSlot).isEmpty()) {
-                        ItemStack splitStack = stack.split(1);
+                        ItemStack splitStack = player.isCreative() ? stack.copy() : stack.split(1);
                         statueEntity.equipStack(equipmentSlot, splitStack);
-                        player.setStackInHand(hand, ItemStack.EMPTY);
+                        player.setStackInHand(hand, stack);
                         be.setEntityEquipment(((LivingEntityMixin)statueEntity).getEquipment());
                         UpdateActionMobEquipment updateActionMobEquipment = new UpdateActionMobEquipment(equipmentSlot, splitStack);
                         for (ServerPlayerEntity serverPlayer : PlayerLookup.world((ServerWorld) world)) {
@@ -132,7 +132,7 @@ public class ActionMobBlock extends AbstractActionMobBlock{
                     }
                 }
                 else if(stack.isEmpty()) {
-                    for(EquipmentSlot equipmentSlot :EquipmentSlot.values()) {
+                    for(EquipmentSlot equipmentSlot : EquipmentSlot.values()) {
                         if(!statueEntity.getEquippedStack(equipmentSlot).isEmpty()) {
                             ItemStack itemStack = statueEntity.getEquippedStack(equipmentSlot);
                             statueEntity.equipStack(equipmentSlot, ItemStack.EMPTY);
@@ -142,7 +142,7 @@ public class ActionMobBlock extends AbstractActionMobBlock{
                             for (ServerPlayerEntity serverPlayer : PlayerLookup.world((ServerWorld) world)) {
                                 ServerPlayNetworking.send(serverPlayer, new S2CUpdateActionMobEquipment(pos, updateActionMobEquipment));
                             }
-                            return ActionResult.SUCCESS_SERVER;
+                            return ActionResult.CONSUME;
                         }
                     }
                 }

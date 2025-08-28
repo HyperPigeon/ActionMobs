@@ -1,26 +1,24 @@
 package net.hyper_pigeon.action_mobs.block.entity;
 
 import com.mojang.serialization.Codec;
+import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.hyper_pigeon.action_mobs.ActionMobs;
 import net.hyper_pigeon.action_mobs.mixin.LivingEntityMixin;
-import net.hyper_pigeon.action_mobs.packet.UpdateActionBlockMobIsBaby;
-import net.hyper_pigeon.action_mobs.packet.UpdateActionBlockMobPart;
-import net.hyper_pigeon.action_mobs.packet.UpdateActionMobAngle;
+import net.hyper_pigeon.action_mobs.packet.*;
 import net.hyper_pigeon.action_mobs.register.ActionMobsBlocks;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.NbtComponent;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityEquipment;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.SpawnReason;
+import net.minecraft.entity.*;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.RegistryWrapper;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.storage.NbtReadView;
 import net.minecraft.storage.NbtWriteView;
@@ -70,8 +68,14 @@ public class ActionMobBlockEntity extends BlockEntity {
                 blockEntity.statueEntity.readData(nbtReadView);
             }
 
-            if(blockEntity.entityEquipment != null && !world.isClient) {
+            if(blockEntity.entityEquipment != null && !world.isClient()) {
                 ((LivingEntityMixin)blockEntity.statueEntity).getEquipment().copyFrom(blockEntity.entityEquipment);
+                for(EquipmentSlot equipmentSlot : EquipmentSlot.values()) {
+                    UpdateActionMobEquipment updateActionMobEquipment = new UpdateActionMobEquipment(equipmentSlot, blockEntity.entityEquipment.get(equipmentSlot));
+                    for (ServerPlayerEntity serverPlayer : PlayerLookup.world((ServerWorld) world)) {
+                        ServerPlayNetworking.send(serverPlayer, new S2CUpdateActionMobEquipment(blockPos, updateActionMobEquipment));
+                    }
+                }
             }
         }
     }
@@ -289,6 +293,7 @@ public class ActionMobBlockEntity extends BlockEntity {
             Optional<EntityEquipment> entityEquipmentOptional = view.read("equipment", EntityEquipment.CODEC);
             entityEquipmentOptional.ifPresent(this::setEntityEquipment);
 
+
             view.read("can_be_baby", Codec.BOOL).ifPresentOrElse(this::setCanBeBaby, () -> setCanBeBaby(false));
             view.read("is_baby", Codec.BOOL).ifPresentOrElse(this::setIsBaby, () -> setIsBaby(false));
 
@@ -305,7 +310,7 @@ public class ActionMobBlockEntity extends BlockEntity {
                 nbtCompound.put("entity_data",entityData);
             }
             if(entityEquipment != null) {
-                nbtCompound.put("equipment",EntityEquipment.CODEC,getEntityEquipment());
+                nbtCompound.put("equipment",EntityEquipment.CODEC, getEntityEquipment());
             }
 
             nbtCompound.putFloat("pitch", getPitch());
