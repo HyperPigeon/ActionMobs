@@ -23,8 +23,6 @@
   "mixins": [
     "action_mobs.mixins.json"
   ],
-  "accessWidener": "action_mobs.accesswidener",
-
 
   "depends": {
     "fabricloader": ">=${loader_version}",
