@@ -61,66 +61,6 @@ public abstract class AbstractActionMobBlock extends BlockWithEntity implements 
     }
 
     @Override
-    public void onPlaced(World world, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack itemStack) {
-        super.onPlaced(world, pos, state, placer, itemStack);
-        if (!world.isClient() && placer != null && world.getBlockEntity(pos) instanceof ActionMobBlockEntity be) {
-            var data = itemStack.get(DataComponentTypes.CUSTOM_DATA);
-            if(data != null) {
-                NbtCompound value = data.copyNbt();
-                String type = value.getString("entity_type", "minecraft:zombie");
-                String[] splitType = type.split(":");
-                Identifier identifier = Identifier.of(splitType[0], splitType[1]);
-                EntityType<?> entityType = Registries.ENTITY_TYPE.get(identifier);
-
-                StatueType statueType = StatueTypeDataLoader.statueTypesByEntityType.get(entityType);
-
-                Entity entity = entityType.create(world, SpawnReason.EVENT);
-                be.setStatueEntity(entity);
-
-                boolean canBeBaby = statueType.canBeBaby();
-                be.setCanBeBaby(canBeBaby);
-
-                boolean isBaby =  value.getBoolean("is_baby", false);
-                be.setIsBaby(isBaby);
-
-                Optional<NbtCompound> entityNbtCompound = value.get("entity_data", NbtCompound.CODEC);
-                entityNbtCompound.ifPresent(be::setEntityData);
-
-                Optional<EntityEquipment> optionalEntityEquipment =  value.get("equipment", EntityEquipment.CODEC);
-                optionalEntityEquipment.ifPresent(entityEquipment -> {
-                    be.setEntityEquipment(entityEquipment);
-                    for(EquipmentSlot equipmentSlot : EquipmentSlot.values()) {
-                        ItemStack equipmentStack =  entityEquipment.get(equipmentSlot);
-                        ((LivingEntity)entity).equipStack(equipmentSlot, equipmentStack);
-                        UpdateActionMobEquipment updateActionMobEquipment = new UpdateActionMobEquipment(equipmentSlot, equipmentStack);
-                        for (ServerPlayerEntity serverPlayer : PlayerLookup.world((ServerWorld) world)) {
-                            ServerPlayNetworking.send(serverPlayer, new S2CUpdateActionMobEquipment(pos, updateActionMobEquipment));
-                        }
-                    }
-                });
-
-                float pitch = value.getFloat("pitch", 0);
-                be.setPitch(pitch);
-
-                float yaw = value.getFloat("yaw", 0);
-                be.setYaw(yaw);
-
-                List<String> partNames = statueType.getPoseablePartNames();
-
-                be.initPartAngles(partNames);
-
-                for (String partName : partNames) {
-                    Optional<Vector3f> anglesOptional = value.get(partName, Codecs.VECTOR_3F);
-                    anglesOptional.ifPresent(angles -> be.setPartAngle(partName, angles));
-                    anglesOptional.ifPresent(angles -> be.setPartEdited(partName, true));
-                }
-
-
-            }
-        }
-    }
-
-    @Override
     protected BlockRenderType getRenderType(BlockState state) {
         return BlockRenderType.INVISIBLE;
     }

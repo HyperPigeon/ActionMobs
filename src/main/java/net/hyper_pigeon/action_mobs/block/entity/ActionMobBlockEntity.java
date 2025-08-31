@@ -68,14 +68,8 @@ public class ActionMobBlockEntity extends BlockEntity {
                 blockEntity.statueEntity.readData(nbtReadView);
             }
 
-            if(blockEntity.entityEquipment != null && !world.isClient()) {
+            if(blockEntity.entityEquipment != null) {
                 ((LivingEntityMixin)blockEntity.statueEntity).getEquipment().copyFrom(blockEntity.entityEquipment);
-                for(EquipmentSlot equipmentSlot : EquipmentSlot.values()) {
-                    UpdateActionMobEquipment updateActionMobEquipment = new UpdateActionMobEquipment(equipmentSlot, blockEntity.entityEquipment.get(equipmentSlot));
-                    for (ServerPlayerEntity serverPlayer : PlayerLookup.world((ServerWorld) world)) {
-                        ServerPlayNetworking.send(serverPlayer, new S2CUpdateActionMobEquipment(blockPos, updateActionMobEquipment));
-                    }
-                }
             }
         }
     }

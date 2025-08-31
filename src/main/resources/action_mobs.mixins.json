@@ -7,6 +7,9 @@
     "LivingEntityMixin"
   ],
   "client": [
+    "AgeableMobEntityRendererAccessor",
+    "AgeableMobEntityRendererMixin",
+    "LivingEntityRendererAccessor",
     "ModelPartMixin"
   ],
   "injectors": {

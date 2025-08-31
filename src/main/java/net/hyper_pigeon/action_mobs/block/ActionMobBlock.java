@@ -11,6 +11,7 @@ import net.hyper_pigeon.action_mobs.mixin.LivingEntityMixin;
 import net.hyper_pigeon.action_mobs.packet.S2CUpdateActionMobEquipment;
 import net.hyper_pigeon.action_mobs.packet.UpdateActionMobEquipment;
 import net.hyper_pigeon.action_mobs.register.ActionMobsBlocks;
+import net.hyper_pigeon.action_mobs.statue_type.StatueType;
 import net.hyper_pigeon.action_mobs.statue_type.StatueTypeDataLoader;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.BlockWithEntity;
@@ -22,10 +23,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.NbtComponent;
 import net.minecraft.component.type.TooltipDisplayComponent;
-import net.minecraft.entity.EntityEquipment;
-import net.minecraft.entity.EquipmentSlot;
-import net.minecraft.entity.ItemEntity;
-import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.*;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -43,6 +41,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.dynamic.Codecs;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
@@ -53,10 +52,7 @@ import net.minecraft.world.WorldView;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 
-import java.util.Collections;
-import java.util.EnumMap;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Consumer;
 
 public class ActionMobBlock extends AbstractActionMobBlock{
@@ -197,5 +193,65 @@ public class ActionMobBlock extends AbstractActionMobBlock{
         }
         textConsumer.accept(Text.translatable("block.action_mobs.action_mob.tooltip.0").formatted(Formatting.GRAY));
         textConsumer.accept(Text.translatable("block.action_mobs.action_mob.tooltip.1").formatted(Formatting.GRAY));
+    }
+
+    @Override
+    public void onPlaced(World world, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack itemStack) {
+        super.onPlaced(world, pos, state, placer, itemStack);
+        if (!world.isClient() && placer != null && world.getBlockEntity(pos) instanceof ActionMobBlockEntity be) {
+            var data = itemStack.get(DataComponentTypes.CUSTOM_DATA);
+            if(data != null) {
+                NbtCompound value = data.copyNbt();
+                String type = value.getString("entity_type", "minecraft:zombie");
+                String[] splitType = type.split(":");
+                Identifier identifier = Identifier.of(splitType[0], splitType[1]);
+                EntityType<?> entityType = Registries.ENTITY_TYPE.get(identifier);
+
+                StatueType statueType = StatueTypeDataLoader.statueTypesByEntityType.get(entityType);
+
+                Entity entity = entityType.create(world, SpawnReason.EVENT);
+                be.setStatueEntity(entity);
+
+                boolean canBeBaby = statueType.canBeBaby();
+                be.setCanBeBaby(canBeBaby);
+
+                boolean isBaby =  value.getBoolean("is_baby", false);
+                be.setIsBaby(isBaby);
+
+                Optional<NbtCompound> entityNbtCompound = value.get("entity_data", NbtCompound.CODEC);
+                entityNbtCompound.ifPresent(be::setEntityData);
+
+                Optional<EntityEquipment> optionalEntityEquipment =  value.get("equipment", EntityEquipment.CODEC);
+                optionalEntityEquipment.ifPresent(entityEquipment -> {
+                    be.setEntityEquipment(entityEquipment);
+                    for(EquipmentSlot equipmentSlot : EquipmentSlot.values()) {
+                        ItemStack equipmentStack =  entityEquipment.get(equipmentSlot);
+                        ((LivingEntity)entity).equipStack(equipmentSlot, equipmentStack);
+                        UpdateActionMobEquipment updateActionMobEquipment = new UpdateActionMobEquipment(equipmentSlot, equipmentStack);
+                        for (ServerPlayerEntity serverPlayer : PlayerLookup.world((ServerWorld) world)) {
+                            ServerPlayNetworking.send(serverPlayer, new S2CUpdateActionMobEquipment(pos, updateActionMobEquipment));
+                        }
+                    }
+                });
+
+                float pitch = value.getFloat("pitch", 0);
+                be.setPitch(pitch);
+
+                float yaw = value.getFloat("yaw", 0);
+                be.setYaw(yaw);
+
+                List<String> partNames = statueType.getPoseablePartNames();
+
+                be.initPartAngles(partNames);
+
+                for (String partName : partNames) {
+                    Optional<Vector3f> anglesOptional = value.get(partName, Codecs.VECTOR_3F);
+                    anglesOptional.ifPresent(angles -> be.setPartAngle(partName, angles));
+                    anglesOptional.ifPresent(angles -> be.setPartEdited(partName, true));
+                }
+
+
+            }
+        }
     }
 }
