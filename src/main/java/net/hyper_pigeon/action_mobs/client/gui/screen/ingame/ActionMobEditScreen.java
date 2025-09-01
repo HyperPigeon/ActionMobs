@@ -5,8 +5,6 @@ import net.hyper_pigeon.action_mobs.block.entity.ActionMobBlockEntity;
 import net.hyper_pigeon.action_mobs.client.gui.widget.ActionMobRotateWidget;
 import net.hyper_pigeon.action_mobs.duck_type.ActionMobModelPartRenderHandler;
 import net.hyper_pigeon.action_mobs.packet.*;
-import net.hyper_pigeon.action_mobs.statue_type.StatueType;
-import net.hyper_pigeon.action_mobs.statue_type.StatueTypeDataLoader;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
