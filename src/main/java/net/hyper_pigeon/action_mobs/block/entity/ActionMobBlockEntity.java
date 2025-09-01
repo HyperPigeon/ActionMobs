@@ -4,18 +4,22 @@ import com.mojang.serialization.Codec;
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.hyper_pigeon.action_mobs.ActionMobs;
+import net.hyper_pigeon.action_mobs.block.ActionMobBlock;
 import net.hyper_pigeon.action_mobs.mixin.LivingEntityMixin;
 import net.hyper_pigeon.action_mobs.packet.*;
 import net.hyper_pigeon.action_mobs.register.ActionMobsBlocks;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.NbtComponent;
 import net.minecraft.entity.*;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
+import net.minecraft.particle.DustParticleEffect;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -27,6 +31,9 @@ import net.minecraft.storage.WriteView;
 import net.minecraft.util.ErrorReporter;
 import net.minecraft.util.dynamic.Codecs;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.random.Random;
 import net.minecraft.world.World;
 import org.joml.Vector3f;
 
@@ -74,10 +81,25 @@ public class ActionMobBlockEntity extends BlockEntity {
                 blockEntity.statueEntity.readData(nbtReadView);
             }
 
-            if(blockEntity.entityEquipment != null) {
-                ((LivingEntityMixin)blockEntity.statueEntity).getEquipment().copyFrom(blockEntity.entityEquipment);
+            if (blockEntity.entityEquipment != null) {
+                ((LivingEntityMixin) blockEntity.statueEntity).getEquipment().copyFrom(blockEntity.entityEquipment);
             }
         }
+
+        if (world.isClient()) {
+            MinecraftClient minecraftClient = MinecraftClient.getInstance();
+            ClientPlayerEntity clientPlayer = minecraftClient.player;
+            if (clientPlayer != null && clientPlayer.getMainHandStack().getItem().equals(ActionMobsBlocks.ACTION_MOB_BLOCK.asItem())) {
+                Random random = world.random;
+
+                double e = random.nextFloat();
+                double f = random.nextFloat();
+                double g = random.nextFloat();
+                world.addParticleClient(DustParticleEffect.DEFAULT, (double)blockPos.getX() + e, (double)blockPos.getY() + f, (double)blockPos.getZ() + g, 0.0, 0.0, 0.0);
+            }
+
+        }
+
     }
 
     public void setEntityType(EntityType<?> entityType) {
@@ -95,7 +117,7 @@ public class ActionMobBlockEntity extends BlockEntity {
         this.markDirty();
     }
 
-    public EntityEquipment getEntityEquipment(){
+    public EntityEquipment getEntityEquipment() {
         return this.entityEquipment;
     }
 
@@ -118,15 +140,15 @@ public class ActionMobBlockEntity extends BlockEntity {
             Optional<Vector3f> anglesOptional = readView.read(partName, Codecs.VECTOR_3F);
             anglesOptional.ifPresent(angles -> partAngles.put(partName, angles));
 
-            Optional<Boolean> isEditedOptional = readView.read(partName+"_edited", Codec.BOOL);
+            Optional<Boolean> isEditedOptional = readView.read(partName + "_edited", Codec.BOOL);
             isEditedOptional.ifPresent(isEdited -> edited.put(partName, isEdited));
         }
         markDirty();
     }
 
-    public void initPartAngles(List<String> partNames){
-        for(String partName : partNames) {
-            Vector3f zeroVector = new Vector3f(0,0,0);
+    public void initPartAngles(List<String> partNames) {
+        for (String partName : partNames) {
+            Vector3f zeroVector = new Vector3f(0, 0, 0);
             this.partAngles.put(partName, zeroVector);
             this.edited.put(partName, false);
         }
@@ -143,11 +165,11 @@ public class ActionMobBlockEntity extends BlockEntity {
     }
 
     public void setPartEdited(String partName, boolean edited) {
-        this.edited.put(partName,edited);
+        this.edited.put(partName, edited);
         markDirty();
     }
 
-    public boolean isPartEdited(String partName){
+    public boolean isPartEdited(String partName) {
         return this.edited.get(partName);
     }
 
@@ -184,7 +206,7 @@ public class ActionMobBlockEntity extends BlockEntity {
 
     public void setPartRoll(String partName, float value) {
         Vector3f currentVector = this.partAngles.get(partName);
-        Vector3f newVector = new Vector3f(currentVector.x, currentVector.y,value);
+        Vector3f newVector = new Vector3f(currentVector.x, currentVector.y, value);
         this.partAngles.put(partName, newVector);
         markDirty();
     }
@@ -207,30 +229,30 @@ public class ActionMobBlockEntity extends BlockEntity {
         return this.yaw;
     }
 
-    public void setXOffset(float value){
+    public void setXOffset(float value) {
         this.xOffset = value;
         markDirty();
     }
 
-    public float getXOffset(){
+    public float getXOffset() {
         return this.xOffset;
     }
 
-    public void setYOffset(float value){
+    public void setYOffset(float value) {
         this.yOffset = value;
         markDirty();
     }
 
-    public float getYOffset(){
+    public float getYOffset() {
         return this.yOffset;
     }
 
-    public void setZOffset(float value){
+    public void setZOffset(float value) {
         this.zOffset = value;
         markDirty();
     }
 
-    public float getZOffset(){
+    public float getZOffset() {
         return this.zOffset;
     }
 
@@ -239,7 +261,7 @@ public class ActionMobBlockEntity extends BlockEntity {
         markDirty();
     }
 
-    public boolean isBaby(){
+    public boolean isBaby() {
         return isBaby;
     }
 
@@ -252,11 +274,11 @@ public class ActionMobBlockEntity extends BlockEntity {
         markDirty();
     }
 
-    public boolean canBeEditedInAdventure(){
+    public boolean canBeEditedInAdventure() {
         return this.canBeEditedInAdventure;
     }
 
-    public void setCanBeEditedInAdventure(boolean value){
+    public void setCanBeEditedInAdventure(boolean value) {
         this.canBeEditedInAdventure = value;
         markDirty();
     }
@@ -288,9 +310,9 @@ public class ActionMobBlockEntity extends BlockEntity {
             String partNames = String.join(",", partAngles.keySet());
             view.putString("part_names", partNames);
 
-            for(String partName : partAngles.keySet()) {
+            for (String partName : partAngles.keySet()) {
                 view.put(partName, Codecs.VECTOR_3F, partAngles.get(partName));
-                view.put(partName+"_edited", Codec.BOOL, edited.get(partName));
+                view.put(partName + "_edited", Codec.BOOL, edited.get(partName));
             }
 
 
@@ -347,28 +369,28 @@ public class ActionMobBlockEntity extends BlockEntity {
         }
     }
 
-    public void setCustomDataForItemStack(ItemStack itemStack){
+    public void setCustomDataForItemStack(ItemStack itemStack) {
         NbtComponent.set(DataComponentTypes.CUSTOM_DATA, itemStack, nbtCompound -> {
             nbtCompound.putString("entity_type", Registries.ENTITY_TYPE.getEntry(entityType).getKey().get().getValue().toString());
             nbtCompound.putBoolean("can_be_baby", canBeBaby());
             nbtCompound.putBoolean("is_baby", isBaby());
             nbtCompound.putBoolean("can_be_edited_in_adventure", canBeEditedInAdventure());
 
-            if(entityData != null) {
-                nbtCompound.put("entity_data",entityData);
+            if (entityData != null) {
+                nbtCompound.put("entity_data", entityData);
             }
-            if(entityEquipment != null) {
-                nbtCompound.put("equipment",EntityEquipment.CODEC, getEntityEquipment());
+            if (entityEquipment != null) {
+                nbtCompound.put("equipment", EntityEquipment.CODEC, getEntityEquipment());
             }
 
             nbtCompound.putFloat("pitch", getPitch());
             nbtCompound.putFloat("yaw", getYaw());
 
-            for(String partName : partAngles.keySet()) {
+            for (String partName : partAngles.keySet()) {
                 Vector3f vector3f = this.partAngles.get(partName);
                 boolean edited = this.edited.get(partName);
                 nbtCompound.put(partName, Codecs.VECTOR_3F, vector3f);
-                nbtCompound.put(partName+"_edited", Codec.BOOL, edited);
+                nbtCompound.put(partName + "_edited", Codec.BOOL, edited);
             }
         });
     }
@@ -392,10 +414,9 @@ public class ActionMobBlockEntity extends BlockEntity {
     public void updateAngle(UpdateActionMobAngle updateActionMobAngle) {
         boolean isPitch = updateActionMobAngle.isPitch();
         float newAngle = updateActionMobAngle.newAngle();
-        if(isPitch) {
+        if (isPitch) {
             setPitch(newAngle);
-        }
-        else {
+        } else {
             setYaw(newAngle);
         }
     }
@@ -405,7 +426,7 @@ public class ActionMobBlockEntity extends BlockEntity {
         setIsBaby(isBaby);
     }
 
-    public void updateOffset(UpdateActionMobOffset updateActionMobOffset){
+    public void updateOffset(UpdateActionMobOffset updateActionMobOffset) {
         Vector3f offsetVector = updateActionMobOffset.offsetVector();
         setXOffset(offsetVector.x());
         setYOffset(offsetVector.y());
