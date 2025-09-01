@@ -49,6 +49,9 @@ public record ActionMobBlockEntityRenderer(
         //rotate by pitch
         matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(blockEntity.getPitch()));
 
+        //translate by offset
+        matrices.translate(blockEntity.getXOffset(), blockEntity.getYOffset(), blockEntity.getZOffset());
+
         Entity renderEntity = blockEntity.getStatueEntity();
         if (renderEntity != null) {
             //noinspection unchecked

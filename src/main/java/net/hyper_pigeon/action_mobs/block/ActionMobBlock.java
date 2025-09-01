@@ -95,9 +95,13 @@ public class ActionMobBlock extends AbstractActionMobBlock{
     }
 
 
+    public boolean canUseActionMob(PlayerEntity player, ActionMobBlockEntity actionMobBlockEntity){
+        return !Objects.equals(player.getGameMode(), GameMode.ADVENTURE) || actionMobBlockEntity.canBeEditedInAdventure();
+    }
+
     protected ActionResult onUseWithItemClient(ItemStack stack, BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
-        if (!player.getGameMode().equals(GameMode.ADVENTURE)
-                && world.getBlockEntity(pos) instanceof ActionMobBlockEntity be
+        if (world.getBlockEntity(pos) instanceof ActionMobBlockEntity be
+                && canUseActionMob(player, be)
                 && be.getStatueEntity() != null) {
             if(player.isSneaking()) {
                 ActionMobs.proxy.openActionMobEditScreen(be);
@@ -108,23 +112,29 @@ public class ActionMobBlock extends AbstractActionMobBlock{
     }
 
     protected ActionResult onUseWithItemServer(ItemStack stack, BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
-        if (!Objects.equals(player.getGameMode(), GameMode.ADVENTURE)
-                && world.getBlockEntity(pos) instanceof ActionMobBlockEntity be
+        if (world.getBlockEntity(pos) instanceof ActionMobBlockEntity be
+                && canUseActionMob(player, be)
                 && be.getStatueEntity() != null) {
             LivingEntity statueEntity = (LivingEntity) be.getStatueEntity();
             if(!player.isSneaking() && hand.equals(Hand.MAIN_HAND)) {
-                if(!stack.isEmpty() && StatueTypeDataLoader.statueTypesByEntityType.get(statueEntity.getType()).canEquip()) {
-                    EquipmentSlot equipmentSlot = statueEntity.getPreferredEquipmentSlot(stack);
-                    if(statueEntity.canEquip(stack,equipmentSlot) && statueEntity.getEquippedStack(equipmentSlot).isEmpty()) {
-                        ItemStack splitStack = player.isCreative() ? stack.copy() : stack.split(1);
-                        statueEntity.equipStack(equipmentSlot, splitStack);
-                        player.setStackInHand(hand, stack);
-                        be.setEntityEquipment(((LivingEntityMixin)statueEntity).getEquipment());
-                        UpdateActionMobEquipment updateActionMobEquipment = new UpdateActionMobEquipment(equipmentSlot, splitStack);
-                        for (ServerPlayerEntity serverPlayer : PlayerLookup.world((ServerWorld) world)) {
-                            ServerPlayNetworking.send(serverPlayer, new S2CUpdateActionMobEquipment(pos, updateActionMobEquipment));
+                if(!stack.isEmpty()) {
+                    if(stack.getItem().equals(Items.COMMAND_BLOCK_MINECART)) {
+                        be.setCanBeEditedInAdventure(!be.canBeEditedInAdventure());
+                        return ActionResult.PASS;
+                    }
+                    else if(StatueTypeDataLoader.statueTypesByEntityType.get(statueEntity.getType()).canEquip()) {
+                        EquipmentSlot equipmentSlot = statueEntity.getPreferredEquipmentSlot(stack);
+                        if(statueEntity.canEquip(stack,equipmentSlot) && statueEntity.getEquippedStack(equipmentSlot).isEmpty()) {
+                            ItemStack splitStack = player.isCreative() ? stack.copy() : stack.split(1);
+                            statueEntity.equipStack(equipmentSlot, splitStack);
+                            player.setStackInHand(hand, stack);
+                            be.setEntityEquipment(((LivingEntityMixin)statueEntity).getEquipment());
+                            UpdateActionMobEquipment updateActionMobEquipment = new UpdateActionMobEquipment(equipmentSlot, splitStack);
+                            for (ServerPlayerEntity serverPlayer : PlayerLookup.world((ServerWorld) world)) {
+                                ServerPlayNetworking.send(serverPlayer, new S2CUpdateActionMobEquipment(pos, updateActionMobEquipment));
+                            }
+                            return ActionResult.CONSUME;
                         }
-                        return ActionResult.CONSUME;
                     }
                 }
                 else if(stack.isEmpty()) {
@@ -217,6 +227,9 @@ public class ActionMobBlock extends AbstractActionMobBlock{
 
                 boolean isBaby =  value.getBoolean("is_baby", false);
                 be.setIsBaby(isBaby);
+
+                boolean canBeEditedInAdventure = value.getBoolean("can_be_edited_in_adventure", false);
+                be.setCanBeEditedInAdventure(canBeEditedInAdventure);
 
                 Optional<NbtCompound> entityNbtCompound = value.get("entity_data", NbtCompound.CODEC);
                 entityNbtCompound.ifPresent(be::setEntityData);

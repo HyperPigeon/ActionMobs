@@ -52,8 +52,14 @@ public class ActionMobBlockEntity extends BlockEntity {
     protected float pitch = 0f;
     protected float yaw = 0f;
 
+    protected float xOffset = 0F;
+    protected float yOffset = 0F;
+    protected float zOffset = 0F;
+
+
     protected boolean isBaby = false;
     private boolean canBeBaby = false;
+    private boolean canBeEditedInAdventure = false;
 
     public ActionMobBlockEntity(BlockPos pos, BlockState state) {
         super(ActionMobsBlocks.ACTION_MOB_BLOCK_ENTITY, pos, state);
@@ -201,6 +207,33 @@ public class ActionMobBlockEntity extends BlockEntity {
         return this.yaw;
     }
 
+    public void setXOffset(float value){
+        this.xOffset = value;
+        markDirty();
+    }
+
+    public float getXOffset(){
+        return this.xOffset;
+    }
+
+    public void setYOffset(float value){
+        this.yOffset = value;
+        markDirty();
+    }
+
+    public float getYOffset(){
+        return this.yOffset;
+    }
+
+    public void setZOffset(float value){
+        this.zOffset = value;
+        markDirty();
+    }
+
+    public float getZOffset(){
+        return this.zOffset;
+    }
+
     public void setIsBaby(boolean isBaby) {
         this.isBaby = isBaby;
         markDirty();
@@ -216,6 +249,15 @@ public class ActionMobBlockEntity extends BlockEntity {
 
     public void setCanBeBaby(boolean canBeBaby) {
         this.canBeBaby = canBeBaby;
+        markDirty();
+    }
+
+    public boolean canBeEditedInAdventure(){
+        return this.canBeEditedInAdventure;
+    }
+
+    public void setCanBeEditedInAdventure(boolean value){
+        this.canBeEditedInAdventure = value;
         markDirty();
     }
 
@@ -239,6 +281,9 @@ public class ActionMobBlockEntity extends BlockEntity {
             view.put("pitch", Codec.FLOAT, pitch);
             view.put("yaw", Codec.FLOAT, yaw);
 
+            view.put("x_offset", Codec.FLOAT, xOffset);
+            view.put("y_offset", Codec.FLOAT, yOffset);
+            view.put("z_offset", Codec.FLOAT, zOffset);
 
             String partNames = String.join(",", partAngles.keySet());
             view.putString("part_names", partNames);
@@ -251,6 +296,8 @@ public class ActionMobBlockEntity extends BlockEntity {
 
             view.put("can_be_baby", Codec.BOOL, canBeBaby());
             view.put("is_baby", Codec.BOOL, isBaby);
+
+            view.put("can_be_edited_in_adventure", Codec.BOOL, canBeEditedInAdventure());
 
             if (entityData != null && !entityData.isEmpty()) {
                 view.put("entity_data", NbtCompound.CODEC, entityData);
@@ -274,6 +321,10 @@ public class ActionMobBlockEntity extends BlockEntity {
             view.read("pitch", Codec.FLOAT).ifPresentOrElse(this::setPitch, () -> setPitch(0));
             view.read("yaw", Codec.FLOAT).ifPresentOrElse(this::setYaw, () -> setYaw(0));
 
+            view.read("x_offset", Codec.FLOAT).ifPresentOrElse(this::setXOffset, () -> setXOffset(0));
+            view.read("y_offset", Codec.FLOAT).ifPresentOrElse(this::setYOffset, () -> setYOffset(0));
+            view.read("z_offset", Codec.FLOAT).ifPresentOrElse(this::setZOffset, () -> setZOffset(0));
+
             Optional<String> partNamesOptional = view.read("part_names", Codec.STRING);
             partNamesOptional.ifPresent((partNames) -> {
                 String[] partNamesArray = partNames.split(",");
@@ -291,6 +342,8 @@ public class ActionMobBlockEntity extends BlockEntity {
             view.read("can_be_baby", Codec.BOOL).ifPresentOrElse(this::setCanBeBaby, () -> setCanBeBaby(false));
             view.read("is_baby", Codec.BOOL).ifPresentOrElse(this::setIsBaby, () -> setIsBaby(false));
 
+            view.read("can_be_edited_in_adventure", Codec.BOOL).ifPresentOrElse(this::setCanBeEditedInAdventure, () -> setCanBeEditedInAdventure(false));
+
         }
     }
 
@@ -299,6 +352,7 @@ public class ActionMobBlockEntity extends BlockEntity {
             nbtCompound.putString("entity_type", Registries.ENTITY_TYPE.getEntry(entityType).getKey().get().getValue().toString());
             nbtCompound.putBoolean("can_be_baby", canBeBaby());
             nbtCompound.putBoolean("is_baby", isBaby());
+            nbtCompound.putBoolean("can_be_edited_in_adventure", canBeEditedInAdventure());
 
             if(entityData != null) {
                 nbtCompound.put("entity_data",entityData);
@@ -349,5 +403,12 @@ public class ActionMobBlockEntity extends BlockEntity {
     public void updateIsBaby(UpdateActionBlockMobIsBaby updateActionBlockMobIsBaby) {
         boolean isBaby = updateActionBlockMobIsBaby.isBaby();
         setIsBaby(isBaby);
+    }
+
+    public void updateOffset(UpdateActionMobOffset updateActionMobOffset){
+        Vector3f offsetVector = updateActionMobOffset.offsetVector();
+        setXOffset(offsetVector.x());
+        setYOffset(offsetVector.y());
+        setZOffset(offsetVector.z());
     }
 }

@@ -1,38 +1,16 @@
 package net.hyper_pigeon.action_mobs.block;
 
-import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.hyper_pigeon.action_mobs.block.entity.ActionMobBlockEntity;
-import net.hyper_pigeon.action_mobs.packet.S2CUpdateActionMobEquipment;
-import net.hyper_pigeon.action_mobs.packet.UpdateActionMobEquipment;
-import net.hyper_pigeon.action_mobs.statue_type.StatueType;
-import net.hyper_pigeon.action_mobs.statue_type.StatueTypeDataLoader;
 import net.minecraft.block.*;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.entity.*;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemPlacementContext;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.registry.Registries;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.EnumProperty;
 import net.minecraft.state.property.Properties;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.dynamic.Codecs;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
-import net.minecraft.world.World;
-import org.jetbrains.annotations.Nullable;
-import org.joml.Vector3f;
-
-import java.util.List;
-import java.util.Optional;
 
 public abstract class AbstractActionMobBlock extends BlockWithEntity implements Waterloggable {
 

@@ -227,6 +227,69 @@ public class ActionMobEditScreen extends Screen {
             this.addDrawableChild(yawDisplay);
             this.addDrawableChild(decreaseYaw);
             this.addDrawableChild(increaseYaw);
+
+            TextFieldWidget xOffset =  new TextFieldWidget(this.client.textRenderer, textX - 25, y + 52, 54, 18, Text.empty());
+            xOffset.setText(String.valueOf(this.actionMobBlockEntity.getXOffset()));
+
+            ButtonWidget decreaseXOffset =  ButtonWidget.builder(Text.literal("-"), action -> {
+                float newValue = Math.max(this.actionMobBlockEntity.getXOffset() - 0.25F, -3.0F);
+                this.actionMobBlockEntity.setXOffset(newValue);
+                xOffset.setText(String.valueOf(this.actionMobBlockEntity.getXOffset()));
+                updateActionMobBlockOffset(new Vector3f(this.actionMobBlockEntity.getXOffset(), this.actionMobBlockEntity.getYOffset(), this.actionMobBlockEntity.getZOffset()));
+            }).dimensions(textX + 30, y + 52, 18, 18).build();
+
+            ButtonWidget increaseXOffset =  ButtonWidget.builder(Text.literal("+"), action -> {
+                float newValue = Math.min(this.actionMobBlockEntity.getXOffset() + 0.25F, 3.0F);
+                this.actionMobBlockEntity.setXOffset(newValue);
+                xOffset.setText(String.valueOf(this.actionMobBlockEntity.getXOffset()));
+                updateActionMobBlockOffset(new Vector3f(this.actionMobBlockEntity.getXOffset(), this.actionMobBlockEntity.getYOffset(), this.actionMobBlockEntity.getZOffset()));
+            }).dimensions(textX + 50, y + 52, 18, 18).build();
+
+            this.addDrawableChild(xOffset);
+            this.addDrawableChild(decreaseXOffset);
+            this.addDrawableChild(increaseXOffset);
+
+            TextFieldWidget yOffset =  new TextFieldWidget(this.client.textRenderer, textX - 25, y + 79, 54, 18, Text.empty());
+            yOffset.setText(String.valueOf(this.actionMobBlockEntity.getYOffset()));
+
+            ButtonWidget decreaseYOffset =  ButtonWidget.builder(Text.literal("-"), action -> {
+                float newValue = Math.max(this.actionMobBlockEntity.getYOffset() - 0.25F, -3.0F);
+                this.actionMobBlockEntity.setYOffset(newValue);
+                yOffset.setText(String.valueOf(this.actionMobBlockEntity.getYOffset()));
+                updateActionMobBlockOffset(new Vector3f(this.actionMobBlockEntity.getXOffset(), this.actionMobBlockEntity.getYOffset(), this.actionMobBlockEntity.getZOffset()));
+            }).dimensions(textX + 30, y + 79, 18, 18).build();
+
+            ButtonWidget increaseYOffset =  ButtonWidget.builder(Text.literal("+"), action -> {
+                float newValue = Math.min(this.actionMobBlockEntity.getYOffset() + 0.25F, 3.0F);
+                this.actionMobBlockEntity.setYOffset(newValue);
+                yOffset.setText(String.valueOf(this.actionMobBlockEntity.getYOffset()));
+                updateActionMobBlockOffset(new Vector3f(this.actionMobBlockEntity.getXOffset(), this.actionMobBlockEntity.getYOffset(), this.actionMobBlockEntity.getZOffset()));
+            }).dimensions(textX + 50, y + 79, 18, 18).build();
+
+            this.addDrawableChild(yOffset);
+            this.addDrawableChild(decreaseYOffset);
+            this.addDrawableChild(increaseYOffset);
+
+            TextFieldWidget zOffset =  new TextFieldWidget(this.client.textRenderer, textX - 25, y + 106, 54, 18, Text.empty());
+            zOffset.setText(String.valueOf(this.actionMobBlockEntity.getZOffset()));
+
+            ButtonWidget decreaseZOffset =  ButtonWidget.builder(Text.literal("-"), action -> {
+                float newValue = Math.max(this.actionMobBlockEntity.getZOffset() - 0.25F, -3.0F);
+                this.actionMobBlockEntity.setZOffset(newValue);
+                zOffset.setText(String.valueOf(this.actionMobBlockEntity.getZOffset()));
+                updateActionMobBlockOffset(new Vector3f(this.actionMobBlockEntity.getXOffset(), this.actionMobBlockEntity.getYOffset(), this.actionMobBlockEntity.getZOffset()));
+            }).dimensions(textX + 30, y + 106, 18, 18).build();
+
+            ButtonWidget increaseZOffset =  ButtonWidget.builder(Text.literal("+"), action -> {
+                float newValue = Math.min(this.actionMobBlockEntity.getZOffset() + 0.25F, 3.0F);
+                this.actionMobBlockEntity.setZOffset(newValue);
+                zOffset.setText(String.valueOf(this.actionMobBlockEntity.getZOffset()));
+                updateActionMobBlockOffset(new Vector3f(this.actionMobBlockEntity.getXOffset(), this.actionMobBlockEntity.getYOffset(), this.actionMobBlockEntity.getZOffset()));
+            }).dimensions(textX + 50, y + 106, 18, 18).build();
+
+            this.addDrawableChild(zOffset);
+            this.addDrawableChild(decreaseZOffset);
+            this.addDrawableChild(increaseZOffset);
         }
 
 
@@ -270,6 +333,12 @@ public class ActionMobEditScreen extends Screen {
         ClientPlayNetworking.send(c2SUpdateActionBlockMobIsBaby);
     }
 
+    protected void updateActionMobBlockOffset(Vector3f vector3f) {
+        UpdateActionMobOffset updateActionMobOffset = new UpdateActionMobOffset(vector3f);
+        C2SUpdateActionMobOffset c2SUpdateActionMobOffset = new C2SUpdateActionMobOffset(actionMobBlockEntity.getPos(), updateActionMobOffset);
+        ClientPlayNetworking.send(c2SUpdateActionMobOffset);
+    }
+
 
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
@@ -290,6 +359,9 @@ public class ActionMobEditScreen extends Screen {
 
             context.drawTextWithShadow(client.textRenderer, Text.translatable("gui.action_mobs.pitch"), 5, y + 5, 0xFFFFFFFF);
             context.drawTextWithShadow(client.textRenderer, Text.translatable("gui.action_mobs.yaw"), 5, y + 32, 0xFFFFFFFF);
+            context.drawTextWithShadow(client.textRenderer, Text.translatable("gui.action_mobs.offset_x"), 5, y + 59, 0xFFFFFFFF);
+            context.drawTextWithShadow(client.textRenderer, Text.translatable("gui.action_mobs.offset_y"), 5, y + 86, 0xFFFFFFFF);
+            context.drawTextWithShadow(client.textRenderer, Text.translatable("gui.action_mobs.offset_z"), 5, y + 113, 0xFFFFFFFF);
         }
     }
 
