@@ -161,6 +161,27 @@ public class ActionMobEditScreen extends Screen {
                 this.addDrawableChild(babyCheckboxWidget);
             }
 
+            TextFieldWidget scaleDisplay =  new TextFieldWidget(this.client.textRenderer, textX+350+45, 60, 54, 18, Text.empty());
+            scaleDisplay.setText(String.valueOf(this.actionMobBlockEntity.getScale()));
+
+            ButtonWidget decreaseScale =  ButtonWidget.builder(Text.literal("-"), action -> {
+                float newScaleValue = Math.max(this.actionMobBlockEntity.getScale() - 0.1F, 0.1F);
+                this.actionMobBlockEntity.setScale(newScaleValue);
+                scaleDisplay.setText(String.valueOf(this.actionMobBlockEntity.getScale()));
+                updateActionMobBlockScale(this.actionMobBlockEntity.getScale());
+            }).dimensions(textX+350+45+55, 60, 18, 18).build();
+
+            ButtonWidget increaseScale =  ButtonWidget.builder(Text.literal("+"), action -> {
+                float newScaleValue = Math.min(this.actionMobBlockEntity.getScale() + 0.1F, 5F);
+                this.actionMobBlockEntity.setScale(newScaleValue);
+                scaleDisplay.setText(String.valueOf(this.actionMobBlockEntity.getScale()));
+                updateActionMobBlockScale(this.actionMobBlockEntity.getScale());
+            }).dimensions(textX+350+45+75, 60, 18, 18).build();
+
+            this.addDrawableChild(scaleDisplay);
+            this.addDrawableChild(decreaseScale);
+            this.addDrawableChild(increaseScale);
+
             MinecraftClient minecraftClient = MinecraftClient.getInstance();
             int windowHeight =  minecraftClient.currentScreen.height;
             ActionMobRotateWidget leftRotateWidget = new ActionMobRotateWidget(
@@ -337,6 +358,12 @@ public class ActionMobEditScreen extends Screen {
         ClientPlayNetworking.send(c2SUpdateActionMobOffset);
     }
 
+    protected void updateActionMobBlockScale(float scale) {
+        UpdateActionMobBlockScale updateActionMobBlockScale = new UpdateActionMobBlockScale(scale);
+        C2SUpdateActionMobBlockScale c2SUpdateActionMobBlockScale = new C2SUpdateActionMobBlockScale(actionMobBlockEntity.getPos(), updateActionMobBlockScale);
+        ClientPlayNetworking.send(c2SUpdateActionMobBlockScale);
+    }
+
 
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
@@ -344,6 +371,8 @@ public class ActionMobEditScreen extends Screen {
         int y = 23;
         if (this.client != null) {
             super.render(context, mouseX, mouseY, delta);
+
+            context.drawTextWithShadow(client.textRenderer, Text.translatable("gui.action_mobs.scale"), textX+350+45, 40, 0xFFFFFFFF);
 
             context.drawTextWithShadow(client.textRenderer, Text.translatable("gui.action_mobs.pitch"), textX + 45, 9, 0xFFFFFFFF);
             context.drawTextWithShadow(client.textRenderer, Text.translatable("gui.action_mobs.yaw"), textX + 54 + 45, 9, 0xFFFFFFFF);

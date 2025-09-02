@@ -3,6 +3,7 @@
   "gui.action_mobs.pitch": "Pitch",
   "gui.action_mobs.yaw": "Yaw",
   "gui.action_mobs.roll": "Roll",
+  "gui.action_mobs.scale": "Scale",
   "gui.action_mobs.offset_x": "X Off.",
   "gui.action_mobs.offset_y": "Y Off.",
   "gui.action_mobs.offset_z": "Z Off.",

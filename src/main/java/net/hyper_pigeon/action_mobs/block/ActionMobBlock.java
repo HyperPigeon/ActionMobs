@@ -13,6 +13,7 @@ import net.hyper_pigeon.action_mobs.statue_type.StatueType;
 import net.hyper_pigeon.action_mobs.statue_type.StatueTypeDataLoader;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.BlockWithEntity;
+import net.minecraft.block.Waterloggable;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityTicker;
 import net.minecraft.block.entity.BlockEntityType;
@@ -50,7 +51,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-public class ActionMobBlock extends AbstractActionMobBlock{
+public class ActionMobBlock extends AbstractActionMobBlock {
     public static final MapCodec<ActionMobBlock> CODEC = createCodec(ActionMobBlock::new);
     public ActionMobBlock(Settings settings) {
         super(settings);
@@ -247,6 +248,9 @@ public class ActionMobBlock extends AbstractActionMobBlock{
 
                 float yaw = value.getFloat("yaw", 0);
                 be.setYaw(yaw);
+
+                float scale = value.getFloat("scale", 1F);
+                be.setScale(scale);
 
                 List<String> partNames = statueType.getPoseablePartNames();
 

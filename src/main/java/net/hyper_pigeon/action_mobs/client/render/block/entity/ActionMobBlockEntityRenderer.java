@@ -41,6 +41,7 @@ public record ActionMobBlockEntityRenderer(
 
         matrices.push();
         matrices.translate(0.5D, 0D, 0.5D);
+        matrices.scale(blockEntity.getScale(),blockEntity.getScale(),blockEntity.getScale());
         matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(blockDirection.getPositiveHorizontalDegrees() + degreeOffset));
 
         //rotate by yaw

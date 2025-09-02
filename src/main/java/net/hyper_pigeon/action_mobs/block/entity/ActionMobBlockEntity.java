@@ -3,10 +3,7 @@ package net.hyper_pigeon.action_mobs.block.entity;
 import com.mojang.serialization.Codec;
 import net.hyper_pigeon.action_mobs.ActionMobs;
 import net.hyper_pigeon.action_mobs.mixin.LivingEntityMixin;
-import net.hyper_pigeon.action_mobs.packet.UpdateActionBlockMobIsBaby;
-import net.hyper_pigeon.action_mobs.packet.UpdateActionBlockMobPart;
-import net.hyper_pigeon.action_mobs.packet.UpdateActionMobAngle;
-import net.hyper_pigeon.action_mobs.packet.UpdateActionMobOffset;
+import net.hyper_pigeon.action_mobs.packet.*;
 import net.hyper_pigeon.action_mobs.register.ActionMobsBlocks;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -62,8 +59,7 @@ public class ActionMobBlockEntity extends BlockEntity {
     protected float xOffset = 0F;
     protected float yOffset = 0F;
     protected float zOffset = 0F;
-
-
+    protected float scale = 1F;
     protected boolean isBaby = false;
     private boolean canBeBaby = false;
     private boolean canBeEditedInAdventure = false;
@@ -261,6 +257,15 @@ public class ActionMobBlockEntity extends BlockEntity {
         markDirty();
     }
 
+    public void setScale(float value){
+        this.scale = value;
+        markDirty();
+    }
+
+    public float getScale(){
+        return this.scale;
+    }
+
     public boolean isBaby() {
         return isBaby;
     }
@@ -307,6 +312,8 @@ public class ActionMobBlockEntity extends BlockEntity {
             view.put("y_offset", Codec.FLOAT, yOffset);
             view.put("z_offset", Codec.FLOAT, zOffset);
 
+            view.put("scale", Codec.FLOAT, scale);
+
             String partNames = String.join(",", partAngles.keySet());
             view.putString("part_names", partNames);
 
@@ -347,6 +354,8 @@ public class ActionMobBlockEntity extends BlockEntity {
             view.read("y_offset", Codec.FLOAT).ifPresentOrElse(this::setYOffset, () -> setYOffset(0));
             view.read("z_offset", Codec.FLOAT).ifPresentOrElse(this::setZOffset, () -> setZOffset(0));
 
+            view.read("scale", Codec.FLOAT).ifPresentOrElse(this::setScale, () -> setScale(1F));
+
             Optional<String> partNamesOptional = view.read("part_names", Codec.STRING);
             partNamesOptional.ifPresent((partNames) -> {
                 String[] partNamesArray = partNames.split(",");
@@ -385,6 +394,8 @@ public class ActionMobBlockEntity extends BlockEntity {
 
             nbtCompound.putFloat("pitch", getPitch());
             nbtCompound.putFloat("yaw", getYaw());
+
+            nbtCompound.putFloat("scale", getScale());
 
             for (String partName : partAngles.keySet()) {
                 Vector3f vector3f = this.partAngles.get(partName);
@@ -431,5 +442,10 @@ public class ActionMobBlockEntity extends BlockEntity {
         setXOffset(offsetVector.x());
         setYOffset(offsetVector.y());
         setZOffset(offsetVector.z());
+    }
+
+    public void updateScale(UpdateActionMobBlockScale updateActionMobBlockScale) {
+        float newScale = updateActionMobBlockScale.newScale();
+        setScale(newScale);
     }
 }
