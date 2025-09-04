@@ -7,10 +7,10 @@
     "LivingEntityMixin"
   ],
   "client": [
-    "AgeableMobEntityRendererAccessor",
-    "AgeableMobEntityRendererMixin",
+    "EntityModelMixin",
     "LivingEntityRendererAccessor",
-    "ModelPartMixin"
+    "LivingEntityRendererMixin",
+    "LivingEntityRenderStateMixin"
   ],
   "injectors": {
     "defaultRequire": 1

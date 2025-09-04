@@ -9,7 +9,6 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 
 @Mixin(LivingEntityRenderer.class)
 public interface LivingEntityRendererAccessor<T extends LivingEntity, S extends LivingEntityRenderState, M extends EntityModel<? super S>>  {
-
     @Accessor("model")
     void setModel(M value);
 

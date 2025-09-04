@@ -4,6 +4,7 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.hyper_pigeon.action_mobs.block.entity.ActionMobBlockEntity;
 import net.hyper_pigeon.action_mobs.client.gui.widget.ActionMobRotateWidget;
 import net.hyper_pigeon.action_mobs.duck_type.ActionMobModelPartRenderHandler;
+import net.hyper_pigeon.action_mobs.duck_type.ActionMobRenderState;
 import net.hyper_pigeon.action_mobs.packet.*;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
@@ -408,21 +409,32 @@ public class ActionMobEditScreen extends Screen {
         Entity entity = this.actionMobBlockEntity.getStatueEntity();
         EntityRenderDispatcher entityRenderDispatcher = MinecraftClient.getInstance().getEntityRenderDispatcher();
         EntityRenderer<Entity, EntityRenderState> entityRenderer = (EntityRenderer<Entity, EntityRenderState>) entityRenderDispatcher.getRenderer(entity);
-        LivingEntityRenderState entityRenderState = (LivingEntityRenderState) entityRenderer.getAndUpdateRenderState(entity, 0F);
+//        LivingEntityRenderState entityRenderState = (LivingEntityRenderState) entityRenderer.getAndUpdateRenderState(entity, 0F);
+        LivingEntityRenderState entityRenderState = (LivingEntityRenderState) entityRenderer.createRenderState();
+        entityRenderer.updateRenderState(entity, entityRenderState, 0F);
 
-        Function<String, ModelPart> function = ((LivingEntityRenderer<?, ?, ?>)entityRenderer).getModel().getRootPart().createPartGetter();
-        for(String partName : actionMobBlockEntity.getPartAngles().keySet()) {
-            ModelPart modelPart = function.apply(partName);
-            if(modelPart != null) {
-                Vector3f vector3f = this.actionMobBlockEntity.getPartAngle(partName);
-                vector3f = convertToRadiansVector(vector3f);
-                ((ActionMobModelPartRenderHandler)(Object)(modelPart)).setIsActionMobModelPart(true);
-                ((ActionMobModelPartRenderHandler)(Object)(modelPart)).setFixedAngles(vector3f);
-            }
-        }
+
+//        LivingEntityRenderState entityRenderState = (LivingEntityRenderState) entityRenderer.createRenderState();
+        ActionMobRenderState actionMobRenderState = (ActionMobRenderState) entityRenderState;
+
+        actionMobRenderState.setActionMob(true);
+        actionMobRenderState.setPartAngles(this.actionMobBlockEntity.getPartAngles());
+
+//        Function<String, ModelPart> function = ((LivingEntityRenderer<?, ?, ?>)entityRenderer).getModel().getRootPart().createPartGetter();
+//        for(String partName : actionMobBlockEntity.getPartAngles().keySet()) {
+//            ModelPart modelPart = function.apply(partName);
+//            if(modelPart != null) {
+//                Vector3f vector3f = this.actionMobBlockEntity.getPartAngle(partName);
+//                vector3f = convertToRadiansVector(vector3f);
+//                ((ActionMobModelPartRenderHandler)(Object)(modelPart)).setIsActionMobModelPart(true);
+//                ((ActionMobModelPartRenderHandler)(Object)(modelPart)).setFixedAngles(vector3f);
+//            }
+//        }
         entityRenderState.baby = this.actionMobBlockEntity.isBaby();
         entityRenderState.hitbox = null;
         drawer.addEntity(entityRenderState, scale, translation, rotation, overrideCameraAngle, x1, y1, x2, y2);
+//        actionMobRenderState.setActionMob(false);
+//        actionMobRenderState.setPartAngles(null);
     }
 
 
