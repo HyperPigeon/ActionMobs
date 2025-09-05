@@ -81,9 +81,11 @@ public record ActionMobBlockEntityRenderer(
                 model.setAngles(entityRenderState);
                 poseablePartNames.forEach((name) -> {
                     ModelPart modelPart = function.apply(name);
-                    Vector3f vanillaPose = new Vector3f(modelPart.pitch, modelPart.yaw, modelPart.roll);
-                    blockEntity.setPartEdited(name, true);
-                    updateActionMobBlockPart(blockEntity, name, convertToRoundedAnglesVector(vanillaPose));
+                    if(modelPart != null) {
+                        Vector3f vanillaPose = new Vector3f(modelPart.pitch, modelPart.yaw, modelPart.roll);
+                        blockEntity.setPartEdited(name, true);
+                        updateActionMobBlockPart(blockEntity, name, convertToRoundedAnglesVector(vanillaPose));
+                    }
                 });
             }
 
