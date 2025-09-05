@@ -3,7 +3,7 @@
   "id": "action_mobs",
   "version": "${version}",
 
-  "name": "ActionMobs",
+  "name": "Action Mobs",
   "description": "A mod that adds miniature games inspired mob model blocks to Minecraft.",
   "authors": [
     "HyperPigeon"
